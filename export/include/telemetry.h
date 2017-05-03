@@ -1,1 +1,1 @@
-/home/roboy/torcs/torcs-1.3.7/src/interfaces/telemetry.h
+/home/rittk/devel/torcs/torcsrc/src/interfaces/telemetry.h

@@ -23,6 +23,8 @@
     @version	$Id: raceengine.cpp,v 1.19.2.23 2014/08/05 23:05:06 berniw Exp $
 */
 
+#include <iostream>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <tgfclient.h>
@@ -47,6 +49,8 @@ static double	bigMsgDisp;
 
 tRmInfo	*ReInfo = 0;
 int RESTART = 0;
+unsigned int *img_old = NULL;
+int dvs_thresh = 35;
 
 static void ReRaceRules(tCarElt *car);
 
@@ -651,22 +655,22 @@ static void
 ReOneStep(double deltaTimeIncrement)
 {
 
-	if (*ppause == 1) 
-     { 
-        count++;
-        if (count>50) // 10FPS
-        {
-           count=1;
+//	if (*ppause == 1)
+//     {
+//        count++;
+//        if (count>50) // 10FPS
+//        {
+//           count=1;
 
-           glReadPixels(0, 0, image_width, image_height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pdata);
+//           //glReadPixels(0, 0, image_width, image_height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pdata);
 
-           *pwritten=1;
+//           *pwritten=1;
 
-           double t = GfTimeClock();
-           if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
-               ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
-        }       
-    }
+//           double t = GfTimeClock();
+//           if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
+//               ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
+//        }
+//    }
 
     int i;
 	tRobotItf *robot;
@@ -759,6 +763,51 @@ reCapture(void)
 	free(img);
 }
 
+static void
+reEvents(void)
+{
+    int sw, sh, vw, vh;
+
+    GfScrGetSize(&sw, &sh, &vw, &vh);
+
+    unsigned int *img = new unsigned int [vw*vh];
+    //img = (unsigned char*)malloc(vw * vh );
+
+    if (img == NULL) {
+        return;
+    }
+
+    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadBuffer(GL_FRONT);
+    glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, img);
+    //            glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, (GLvoid*)img);
+
+    //not on first frame, no image data is apparent
+    if (img_old)
+    {
+        // obtain difference in luminosity:
+        for (int ii=0; ii<vw*vh; ++ii)
+        {
+            if (abs(- img[ii] + img_old[ii])>dvs_thresh)
+            {
+                pdata[ii] = - img[ii] + img_old[ii];
+            }
+            else
+                pdata[ii] = 0;
+
+        }
+        *pwritten=1;
+        //                double t = GfTimeClock();
+        //                if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
+        //                    ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
+    }
+    img_old = img;
+    //delete[] img;
+    //free(img);
+
+}
+
 
 int
 ReUpdate(void)
@@ -789,6 +838,7 @@ ReUpdate(void)
 			
 			GfuiDisplay();
 			ReInfo->_reGraphicItf.refresh(ReInfo->s);
+            reEvents();
 			glutPostRedisplay();	/* Callback -> reDisplay */
 			break;
 

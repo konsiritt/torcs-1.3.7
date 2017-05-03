@@ -1,1 +1,1 @@
-/home/roboy/torcs/torcs-1.3.7/src/libs/math/straight2_t.h
+/home/rittk/devel/torcs/torcsrc/src/libs/math/straight2_t.h

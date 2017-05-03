@@ -1,1 +1,1 @@
-/home/roboy/torcs/torcs-1.3.7/src/interfaces/graphic.h
+/home/rittk/devel/torcs/torcsrc/src/interfaces/graphic.h

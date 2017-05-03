@@ -45,6 +45,8 @@
 #include "grcarlight.h"
 #include <glfeatures.h>
 
+#include <iostream>
+
 int maxTextureUnits = 0;
 static double OldTime;
 static int nFrame;
@@ -317,7 +319,8 @@ refresh(tSituation *s)
     grDeltaTime = grCurTime - OldTime;
     if ((grCurTime - OldTime) > 1.0) {
 	/* The Frames Per Second (FPS) display is refreshed every second */
-	grFps = (tdble)nFrame / (grCurTime - OldTime);
+    grFps = (tdble)nFrame / (grCurTime - OldTime);
+    std::cout << "FPS: " << grFps << std::endl;
 	nFrame = 0;
 	OldTime = grCurTime;
     }

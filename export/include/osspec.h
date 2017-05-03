@@ -1,1 +1,1 @@
-/home/roboy/torcs/torcs-1.3.7/src/linux/osspec.h
+/home/rittk/devel/torcs/torcsrc/src/linux/osspec.h
