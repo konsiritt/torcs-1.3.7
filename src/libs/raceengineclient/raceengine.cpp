@@ -49,8 +49,8 @@ static double	bigMsgDisp;
 
 tRmInfo	*ReInfo = 0;
 int RESTART = 0;
-unsigned int *img_old = NULL;
-int dvs_thresh = 35;
+unsigned char *img_old = NULL;
+int dvs_thresh = 40;
 
 static void ReRaceRules(tCarElt *car);
 
@@ -770,7 +770,7 @@ reEvents(void)
 
     GfScrGetSize(&sw, &sh, &vw, &vh);
 
-    unsigned int *img = new unsigned int [vw*vh];
+    unsigned char *img = new unsigned char [vw*vh];
     //img = (unsigned char*)malloc(vw * vh );
 
     if (img == NULL) {
@@ -803,7 +803,7 @@ reEvents(void)
         //                    ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
     }
     img_old = img;
-    //delete[] img;
+    //delete[] img; //2DO: handle deletion, cannot delete here, because img_old points to *img
     //free(img);
 
 }
