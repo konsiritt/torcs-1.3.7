@@ -801,9 +801,9 @@ reEvents(void)
         //                double t = GfTimeClock();
         //                if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
         //                    ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
+        delete [] img_old;
     }
     img_old = img;
-    //delete[] img; //2DO: handle deletion, cannot delete here, because img_old points to *img
     //free(img);
 
 }
