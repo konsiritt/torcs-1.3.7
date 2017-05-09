@@ -26,6 +26,7 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <math.h>
 #ifndef WIN32
@@ -403,7 +404,17 @@ void GfScrInit(int argc, char *argv[])
 	if ((strcmp(fscr, GFSCR_VAL_YES) == 0) && (!fullscreen)) {
 		/* glutVideoResize(0, 0, winX, winY); */
 		glutFullScreen();
-	}
+    }
+
+    GLenum glew_status = glewInit();
+    if (glew_status != GLEW_OK) {
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
+    }
+
+    if (!GLEW_VERSION_2_0) {
+        fprintf(stderr, "Error: your graphic card does not support OpenGL 2.0\n");
+    }
+
 
     GfParmReleaseHandle(handle);
 

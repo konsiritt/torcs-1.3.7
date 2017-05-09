@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <GL/glew.h>
+
 #include <tgfclient.h>
 #include "gui.h"
 
@@ -134,7 +136,8 @@ GfuiIdle(void)
 */
 void
 GfuiDisplay(void)
-{
+{    
+
 	tGfuiObject	*curObj;
 	
 	glDisable(GL_DEPTH_TEST);
@@ -161,7 +164,8 @@ GfuiDisplay(void)
 					GfuiScreen->bgColor[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
-	
+
+    // Background Texture:
 	if (glIsTexture(GfuiScreen->bgImage) == GL_TRUE) {
 		GLfloat tx1 = 0.0f, tx2 = 1.0f, ty1 = 0.0f, ty2 = 1.0f;
 		
@@ -200,7 +204,7 @@ GfuiDisplay(void)
 	if (curObj) {
 		do {
 			curObj = curObj->next;
-			GfuiDraw(curObj);
+			GfuiDraw(curObj); //draws menu entries
 		} while (curObj != GfuiScreen->objects);
 	}
 	

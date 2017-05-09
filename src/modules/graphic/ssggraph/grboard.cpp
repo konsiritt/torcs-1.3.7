@@ -859,6 +859,7 @@ cGrBoard::grDispArcade(tCarElt *car, tSituation *s)
 }
 
 
+// renders display of speedometer etc.
 void cGrBoard::refreshBoard(tSituation *s, float Fps, int forceArcade, tCarElt *curr)
 {
 	if (arcadeFlag || forceArcade) {
