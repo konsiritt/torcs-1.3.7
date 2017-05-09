@@ -836,9 +836,9 @@ ReUpdate(void)
 				ReInfo->_reCurTime = GfTimeClock();
 			}
 			
-			GfuiDisplay();
-			ReInfo->_reGraphicItf.refresh(ReInfo->s);
-            reEvents();
+            GfuiDisplay(); // render background and menu items etc
+            ReInfo->_reGraphicItf.refresh(ReInfo->s);
+            //reEvents(); // DVS luminance difference implementation in cpu
 			glutPostRedisplay();	/* Callback -> reDisplay */
 			break;
 
