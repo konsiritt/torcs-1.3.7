@@ -18,17 +18,17 @@
 
 SOURCES   = grmain.cpp grboard.cpp ssggraph.cpp grcam.cpp grcar.cpp grscreen.cpp\
 	grscene.cpp grutil.cpp grshadow.cpp grsmoke.cpp grskidmarks.cpp grloadac.cpp\
-	grmultitexstate.cpp grvtxtable.cpp grtrackmap.cpp grtexture.cpp grcarlight.cpp CarSoundData.cpp TorcsSound.cpp PlibSoundInterface.cpp OpenalSoundInterface.cpp grsound.cpp SoundInterface.cpp
+	grmultitexstate.cpp grvtxtable.cpp grtrackmap.cpp grtexture.cpp grcarlight.cpp CarSoundData.cpp TorcsSound.cpp PlibSoundInterface.cpp OpenalSoundInterface.cpp grsound.cpp SoundInterface.cpp shader_utils.cpp
 
 MODULE    = ssggraph.so
 
 MODULEDIR = modules/graphic
 
-LIBS      = -lplibsl -lplibsm -lplibsg -lplibssg -lplibul -lplibssgaux -lopenal
+LIBS      = -lplibsl -lplibsm -lplibsg -lplibssg -lplibul -lplibssgaux -lopenal -lGLEW
 
 SHIPDIR   = config
 
-SHIP      = graph.xml sound.xml
+SHIP      = graph.xml sound.xml postproc.v.glsl postproc.f.glsl
 
 CONFIGCREATEDIRS = ${SHIPDIR}
 

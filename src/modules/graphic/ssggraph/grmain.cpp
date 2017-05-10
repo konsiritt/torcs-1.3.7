@@ -23,6 +23,9 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
+
+#include <GL/glew.h>
+
 #include <GL/glut.h>
 #include <plib/ssg.h>
 
@@ -45,7 +48,17 @@
 #include "grcarlight.h"
 #include <glfeatures.h>
 
+#include "shader_utils.h" //some handling for shader usage
+
 #include <iostream>
+
+// texture handling booleans
+bool dvs_shader = true; // boolean to denote if initial texture has been written
+bool fbo_a = false;
+// Postprocessing variables
+GLuint fbo, fbo_texture, fbo_texture_a, rbo_depth;
+GLuint vbo_fbo_vertices;
+GLuint program_postproc, attribute_v_coord_postproc, uniform_fbo_texture, uniform_fbo_texture_a;
 
 int maxTextureUnits = 0;
 static double OldTime;
@@ -303,7 +316,140 @@ initView(int x, int y, int width, int height, int /* flag */, void *screen)
 
 	GfParmReleaseHandle(grHandle);
 
+    if (dvs_shader)
+    {
+        if (!gfuiFBOInit())
+        {
+            std::cout << "FBO not initialized succesfully" << std::endl;
+        }
+    }
+
 	return 0;
+}
+
+
+/**
+ * Function that initializes FBO (frame buffer object)
+ * renderings will go to fbo texture to use in shader for DVS emulation
+ */
+int
+gfuiFBOInit(void)
+{
+//    glShadeModel( GL_FLAT );   // The default value of GL_SMOOTH is usually better
+//    glEnable( GL_DEPTH_TEST );   // Depth testing must be turned on
+
+    /* Create back-buffer, used for post-processing */
+    std::cout << "current OpenGL version supported on this platform: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "FBO screen width: " << grWinw << " and height: " << grWinh << std::endl;
+
+
+    int screen_width = grWinw; //640; //(int)GfuiScreen->width; //2DO: woher die aktuellen, ausserdem wichtig: resize?
+    int screen_height = grWinh; //480;//(int)GfuiScreen->height;
+    /* Texture */
+    //glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &fbo_texture);
+    glBindTexture(GL_TEXTURE_2D, fbo_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screen_width, screen_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    /* Texture A*/
+    //glActiveTexture(GL_TEXTURE1);
+    glGenTextures(1, &fbo_texture_a);
+    glBindTexture(GL_TEXTURE_2D, fbo_texture_a);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screen_width, screen_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    /* Depth buffer */
+    glGenRenderbuffers(1, &rbo_depth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, screen_width, screen_height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    /* Framebuffer to link everything together */
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fbo_texture_a, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
+    GLenum status;
+    if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE) {
+        fprintf(stderr, "glCheckFramebufferStatus: error 0x%x", status);
+        return 0;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    GLfloat fbo_vertices[] = {
+        -1, -1,
+        1, -1,
+        -1,  1,
+        1,  1,
+    };
+    glGenBuffers(1, &vbo_fbo_vertices);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_vertices), fbo_vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+    /* Compile and link shaders */
+    GLint link_ok = GL_FALSE;
+    GLint validate_ok = GL_FALSE;
+
+    GLuint vs, fs;
+
+    /* Post-processing */
+    if ((vs = create_shader("config/postproc.v.glsl", GL_VERTEX_SHADER))   == 0) return 0;
+    if ((fs = create_shader("config/postproc.f.glsl", GL_FRAGMENT_SHADER)) == 0) return 0;
+
+    program_postproc = glCreateProgram();
+    glAttachShader(program_postproc, vs);
+    glAttachShader(program_postproc, fs);
+    glLinkProgram(program_postproc);
+    glGetProgramiv(program_postproc, GL_LINK_STATUS, &link_ok);
+    if (!link_ok) {
+        fprintf(stderr, "glLinkProgram:");
+        print_log(program_postproc);
+        return 0;
+    }
+    glValidateProgram(program_postproc);
+    glGetProgramiv(program_postproc, GL_VALIDATE_STATUS, &validate_ok);
+    if (!validate_ok) {
+        fprintf(stderr, "glValidateProgram:");
+        print_log(program_postproc);
+    }
+
+    const char* attribute_name;
+    attribute_name = "v_coord";
+    attribute_v_coord_postproc = glGetAttribLocation(program_postproc, attribute_name);
+    if (attribute_v_coord_postproc == -1) {
+        fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+        return 0;
+    }
+
+    const char* uniform_name;
+    uniform_name = "fbo_texture";
+    uniform_fbo_texture = glGetUniformLocation(program_postproc, uniform_name);
+    if (uniform_fbo_texture == -1) {
+        fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
+        return 0;
+    }
+
+    uniform_name = "fbo_texture_a";
+    uniform_fbo_texture_a = glGetUniformLocation(program_postproc, uniform_name);
+    if (uniform_fbo_texture_a == -1) {
+        fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
+        return 0;
+    }
+
+    return 1;
+
 }
 
 
@@ -312,7 +458,40 @@ refresh(tSituation *s)
 {
     int			i;
 
-    START_PROFILE("refresh");
+    if (dvs_shader)
+    {
+//        int depth_true = (glIsEnabled(GL_DEPTH_TEST)) ? 1 : 0;
+//        std::cout << "GL_DEPTH_TEST is enabled? " << depth_true << std::endl;
+//        GLint whichID;
+//        glGetIntegerv(GL_TEXTURE_BINDING_2D, &whichID);
+//        std::cout << "before dvs: " << whichID << std::endl;
+
+        // render to FBO instead of screenoffset
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glPushAttrib(GL_VIEWPORT_BIT);
+        glViewport(0,0,grWinw, grWinh);
+
+
+        if (fbo_a) // drawing to fbo_texture_a
+        {           
+            glDrawBuffer(GL_COLOR_ATTACHMENT1);
+            glActiveTexture(GL_TEXTURE0+11);
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, fbo_texture_a);
+        }
+        else
+        {
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glActiveTexture(GL_TEXTURE0+12);
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, fbo_texture);
+        }
+        glActiveTexture(GL_TEXTURE0);
+
+        glDisable(GL_TEXTURE_2D);
+    }
+
+//    START_PROFILE("refresh");
 
     nFrame++;
     grCurTime = GfTimeClock();
@@ -327,22 +506,68 @@ refresh(tSituation *s)
 
     TRACE_GL("refresh: start");
 
-    START_PROFILE("grRefreshSound*");
-    grRefreshSound(s, grScreens[0]->getCurCamera());
-    STOP_PROFILE("grRefreshSound*");
+//    START_PROFILE("grRefreshSound*");
+//    grRefreshSound(s, grScreens[0]->getCurCamera());
+//    STOP_PROFILE("grRefreshSound*");
 
-    START_PROFILE("grDrawBackground/glClear");
-    glDepthFunc(GL_LEQUAL);
+//    START_PROFILE("grDrawBackground/glClear");
+//    glDepthFunc(GL_LEQUAL);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    STOP_PROFILE("grDrawBackground/glClear");
+//    STOP_PROFILE("grDrawBackground/glClear");
 
-    for (i = 0; i < GR_NB_MAX_SCREEN; i++) {
-	grScreens[i]->update(s, grFps);
+    //for (i = 0; i < GR_NB_MAX_SCREEN; i++) {
+    grScreens[0]->update(s, grFps);
+    //}
+
+    if (dvs_shader)
+    {       
+        // Post-processing
+        glPopAttrib();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glClearColor(1.0, 1.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+        glUseProgram(program_postproc);
+
+        if (fbo_a) // drawn to fbo_texture_a
+        {
+            glUniform1i(uniform_fbo_texture, 11);
+
+            glUniform1i(uniform_fbo_texture_a, 12);
+
+            fbo_a=!fbo_a;
+        }
+        else
+        {
+            glUniform1i(uniform_fbo_texture, 12);
+
+            glUniform1i(uniform_fbo_texture_a, 11);
+
+            fbo_a=!fbo_a;
+        }
+
+        glEnableVertexAttribArray(attribute_v_coord_postproc);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
+        glVertexAttribPointer(
+                    attribute_v_coord_postproc,  // attribute
+                    2,                  // number of elements per vertex, here (x,y)
+                    GL_FLOAT,           // the type of each element
+                    GL_FALSE,           // take our values as-is
+                    0,                  // no extra data between each position
+                    0                   // offset of first element
+                    );
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glDisableVertexAttribArray(attribute_v_coord_postproc);
+        glUseProgram(0);        
     }
 
-    grUpdateSmoke(s->currentTime);
 
-    STOP_PROFILE("refresh");
+//    grUpdateSmoke(s->currentTime);
+
+//    STOP_PROFILE("refresh");
+
     return 0;
 }
 
@@ -487,6 +712,17 @@ shutdownTrack(void)
 	}
 
 	GfParmReleaseHandle(grTrackHandle);
+    free_resources();
+}
+
+void free_resources(void)
+{
+    glDeleteProgram(program_postproc);
+    glDeleteBuffers(1, &vbo_fbo_vertices);
+    glDeleteRenderbuffers(1, &rbo_depth);
+    glDeleteTextures(1, &fbo_texture);
+    glDeleteTextures(1, &fbo_texture_a);
+    glDeleteFramebuffers(1, &fbo);
 }
 
 /*void bendCar (int index, sgVec3 poc, sgVec3 force, int cnt)
