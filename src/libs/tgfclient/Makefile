@@ -51,7 +51,7 @@ CONFIGCREATEDIRS = config
 
 CONFIG    = screen.xml
 
-LIBS      = -lplibjs
+LIBS      = -lplibjs -lGLEW
 
 src_PKGFILES	= $(shell find * -maxdepth 0 -type f -print)
 
