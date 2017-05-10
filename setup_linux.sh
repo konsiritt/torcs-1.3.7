@@ -87,6 +87,26 @@ then
     cp -f config/sound.xml $1/config/sound.xml
     chmod 640 $1/config/sound.xml
 fi
+if [ ! -e  $1/config/postproc.v.glsl ] || [ config/postproc.v.glsl -nt $1/config/postproc.v.glsl ]
+then
+    if [ -e $1/config/postproc.v.glsl ]
+    then
+        echo "Saving $1/config/postproc.v.glsl to $1/config/postproc.v.glsl.old"
+        cp -f $1/config/postproc.v.glsl $1/config/postproc.v.glsl.old
+    fi
+    cp -f config/postproc.v.glsl $1/config/postproc.v.glsl
+    chmod 640 $1/config/postproc.v.glsl
+fi
+if [ ! -e  $1/config/postproc.f.glsl ] || [ config/postproc.f.glsl -nt $1/config/postproc.f.glsl ]
+then
+    if [ -e $1/config/postproc.f.glsl ]
+    then
+        echo "Saving $1/config/postproc.f.glsl to $1/config/postproc.f.glsl.old"
+        cp -f $1/config/postproc.f.glsl $1/config/postproc.f.glsl.old
+    fi
+    cp -f config/postproc.f.glsl $1/config/postproc.f.glsl
+    chmod 640 $1/config/postproc.f.glsl
+fi
 mkdir -p $1/results/champ 2>/dev/null
 mkdir -p $1/results/dtmrace 2>/dev/null
 mkdir -p $1/results/endrace 2>/dev/null
