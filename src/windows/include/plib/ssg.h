@@ -31,7 +31,7 @@
 #ifdef UL_MAC_OSX
 #  include <OpenGL/gl.h>
 #else
-#  include <GL/gl.h>
+#  include <GL/glew.h>
 #endif
 
 #include "ssgconf.h"

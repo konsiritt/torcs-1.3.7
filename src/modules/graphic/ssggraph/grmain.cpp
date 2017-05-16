@@ -58,7 +58,7 @@ bool fbo_a = false;
 // Postprocessing variables
 GLuint fbo, fbo_texture, fbo_texture_a, rbo_depth;
 GLuint vbo_fbo_vertices;
-GLuint program_postproc, attribute_v_coord_postproc, uniform_fbo_texture, uniform_fbo_texture_a;
+GLuint program_postproc, attribute_v_coord_postproc, uniform_fbo_texture, uniform_fbo_texture_a, uniform_depth_texture;
 
 int maxTextureUnits = 0;
 static double OldTime;
@@ -266,9 +266,9 @@ initView(int x, int y, int width, int height, int /* flag */, void *screen)
 	snprintf(buf, BUFSIZE, "%s%s", GetLocalDir(), GR_PARAM_FILE);
 	grHandle = GfParmReadFile(buf, GFPARM_RMODE_STD | GFPARM_RMODE_CREAT);
 
-	for (i = 0; i < GR_NB_MAX_SCREEN; i++) {
-		grScreens[i]->initBoard ();
-	}
+    for (i = 0; i < GR_NB_MAX_SCREEN; i++) {
+        grScreens[i]->initBoard ();
+    }
 
 	GfuiAddSKey(screen, GLUT_KEY_HOME, "Zoom Maximum",     (void*)GR_ZOOM_MAX,	grSetZoom, NULL);
 	GfuiAddSKey(screen, GLUT_KEY_END,  "Zoom Minimum",     (void*)GR_ZOOM_MIN,	grSetZoom, NULL);
@@ -349,9 +349,9 @@ gfuiFBOInit(void)
     //glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &fbo_texture);
     glBindTexture(GL_TEXTURE_2D, fbo_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screen_width, screen_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screen_width, screen_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -361,8 +361,8 @@ gfuiFBOInit(void)
     glGenTextures(1, &fbo_texture_a);
     glBindTexture(GL_TEXTURE_2D, fbo_texture_a);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screen_width, screen_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -372,13 +372,32 @@ gfuiFBOInit(void)
     glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, screen_width, screen_height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
+//    glGenTextures(1, &rbo_depth);
+//    glBindTexture(GL_TEXTURE_2D, rbo_depth);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, screen_width, screen_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+//    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+//    glTexParameteri (GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+
 
     /* Framebuffer to link everything together */
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fbo_texture_a, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbo_texture, 0);
+//    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, rbo_depth, 0);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fbo_texture_a, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, rbo_depth, 0);
+
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers);
+
     GLenum status;
     if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE) {
         fprintf(stderr, "glCheckFramebufferStatus: error 0x%x", status);
@@ -441,12 +460,19 @@ gfuiFBOInit(void)
         return 0;
     }
 
-    uniform_name = "fbo_texture_a";
-    uniform_fbo_texture_a = glGetUniformLocation(program_postproc, uniform_name);
-    if (uniform_fbo_texture_a == -1) {
-        fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
-        return 0;
-    }
+//    uniform_name = "fbo_texture_a";
+//    uniform_fbo_texture_a = glGetUniformLocation(program_postproc, uniform_name);
+//    if (uniform_fbo_texture_a == -1) {
+//        fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
+//        return 0;
+//    }
+
+//    uniform_name = "depth_texture";
+//    uniform_depth_texture = glGetUniformLocation(program_postproc, uniform_name);
+//    if (uniform_depth_texture == -1) {
+//        fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
+//        return 0;
+//    }
 
     return 1;
 
@@ -458,6 +484,10 @@ refresh(tSituation *s)
 {
     int			i;
 
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL error: " << err << std::endl;
+    }
     if (dvs_shader)
     {
 //        int depth_true = (glIsEnabled(GL_DEPTH_TEST)) ? 1 : 0;
@@ -468,27 +498,28 @@ refresh(tSituation *s)
 
         // render to FBO instead of screenoffset
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glPushAttrib(GL_VIEWPORT_BIT);
-        glViewport(0,0,grWinw, grWinh);
+//        glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
+//        glViewport(0,0,grWinw, grWinh);
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-
-        if (fbo_a) // drawing to fbo_texture_a
-        {           
-            glDrawBuffer(GL_COLOR_ATTACHMENT1);
-            glActiveTexture(GL_TEXTURE0+11);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, fbo_texture_a);
-        }
-        else
-        {
-            glDrawBuffer(GL_COLOR_ATTACHMENT0);
-            glActiveTexture(GL_TEXTURE0+12);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, fbo_texture);
-        }
+//        if (fbo_a) // drawing to fbo_texture_a
+//        {           
+//            glDrawBuffer(GL_COLOR_ATTACHMENT1);
+//            glActiveTexture(GL_TEXTURE30);
+//            glEnable(GL_TEXTURE_2D);
+//            glBindTexture(GL_TEXTURE_2D, fbo_texture_a);
+//        }
+//        else
+//        {
+//            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+//            glActiveTexture(GL_TEXTURE31);
+//            glEnable(GL_TEXTURE_2D);
+//            glBindTexture(GL_TEXTURE_2D, fbo_texture);
+//        }
+        glClearColor(0.7f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//        glEnable(GL_DEPTH_TEST);
         glActiveTexture(GL_TEXTURE0);
-
-        glDisable(GL_TEXTURE_2D);
     }
 
 //    START_PROFILE("refresh");
@@ -510,10 +541,10 @@ refresh(tSituation *s)
 //    grRefreshSound(s, grScreens[0]->getCurCamera());
 //    STOP_PROFILE("grRefreshSound*");
 
-//    START_PROFILE("grDrawBackground/glClear");
-//    glDepthFunc(GL_LEQUAL);
+    START_PROFILE("grDrawBackground/glClear");
+    glDepthFunc(GL_LEQUAL);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//    STOP_PROFILE("grDrawBackground/glClear");
+    STOP_PROFILE("grDrawBackground/glClear");
 
     //for (i = 0; i < GR_NB_MAX_SCREEN; i++) {
     grScreens[0]->update(s, grFps);
@@ -522,30 +553,50 @@ refresh(tSituation *s)
     if (dvs_shader)
     {       
         // Post-processing
-        glPopAttrib();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        glClearColor(1.0, 1.0, 1.0, 1.0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//        glPopAttrib();
+//        glEnable(GL_TEXTURE_2D);
+        glDrawBuffer(GL_BACK);
+
+        glClearColor(0.0, 0.5, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+//        glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(program_postproc);
+//        glDisable(GL_DEPTH_TEST);
 
-        if (fbo_a) // drawn to fbo_texture_a
-        {
-            glUniform1i(uniform_fbo_texture, 11);
 
-            glUniform1i(uniform_fbo_texture_a, 12);
+        glUniform1i(uniform_fbo_texture, 22);
+        glActiveTexture(GL_TEXTURE22);
+        glBindTexture(GL_TEXTURE_2D, fbo_texture);
 
-            fbo_a=!fbo_a;
-        }
-        else
-        {
-            glUniform1i(uniform_fbo_texture, 12);
+//        glUniform1i(uniform_depth_texture, 23);
+//        glActiveTexture(GL_TEXTURE23);
+//        glBindTexture(GL_TEXTURE_2D, rbo_depth);
 
-            glUniform1i(uniform_fbo_texture_a, 11);
 
-            fbo_a=!fbo_a;
-        }
+        glActiveTexture(GL_TEXTURE0);
+        glEnable(GL_TEXTURE_2D);
+
+
+
+//        if (fbo_a) // drawn to fbo_texture_a
+//        {
+//            glUniform1i(uniform_fbo_texture, 30);
+
+//            glUniform1i(uniform_fbo_texture_a, 31);
+
+//            fbo_a=!fbo_a;
+//        }
+//        else
+//        {
+//            glUniform1i(uniform_fbo_texture, 31);
+
+//            glUniform1i(uniform_fbo_texture_a, 30);
+
+//            fbo_a=!fbo_a;
+//        }
 
         glEnableVertexAttribArray(attribute_v_coord_postproc);
 
@@ -560,7 +611,7 @@ refresh(tSituation *s)
                     );
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glDisableVertexAttribArray(attribute_v_coord_postproc);
-        glUseProgram(0);        
+        glUseProgram(0);
     }
 
 
