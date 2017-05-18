@@ -26,6 +26,7 @@
 
 /* Race initialization routines */
 
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <tgfclient.h>
@@ -44,8 +45,11 @@
 #include "racestate.h"
 #include "racegl.h"
 #include "raceresults.h"
+#include "pixelbuffer.h"
 
 #include "raceinit.h"
+
+pixelBuffer * pboObject;
 
 static const char *level_str[] = { ROB_VAL_ROOKIE, ROB_VAL_AMATEUR, ROB_VAL_SEMI_PRO, ROB_VAL_PRO };
 
@@ -519,6 +523,10 @@ initPits(void)
 int
 ReInitCars(void)
 {
+    std::cout << "ReInitCars now"<<std::endl;
+
+    pboObject = new pixelBuffer(640,480);
+
 	int nCars;
 	int index;
 	int i, j, k;
@@ -819,6 +827,9 @@ ReInitTrack(void)
 void
 ReRaceCleanup(void)
 {
+    std::cout << "ReRaceCleanup now"<<std::endl;
+    delete pboObject;
+
 	ReInfo->_reGameScreen = ReHookInit();
 	ReInfo->_reSimItf.shutdown();
 	if (ReInfo->_displayMode == RM_DISP_MODE_NORMAL) {

@@ -39,17 +39,24 @@
 #include "raceinit.h"
 #include "raceresults.h"
 
+#include "pixelbuffer.h"
+#include "Timer.h"
+
+
 #include "raceengine.h"
 
 #define image_width 640
 #define image_height 480
+
+Timer t1;
+float readTime, processTime;
 
 static double	msgDisp;
 static double	bigMsgDisp;
 
 tRmInfo	*ReInfo = 0;
 int RESTART = 0;
-unsigned int *img_old = NULL;
+unsigned char *img_old = NULL;
 int dvs_thresh = 35;
 
 static void ReRaceRules(tCarElt *car);
@@ -770,12 +777,13 @@ reEvents(void)
 
     GfScrGetSize(&sw, &sh, &vw, &vh);
 
-    unsigned int *img = new unsigned int [vw*vh];
-    //img = (unsigned char*)malloc(vw * vh );
+    unsigned char *img = new unsigned char [vw*vh];
 
     if (img == NULL) {
         return;
     }
+
+    t1.start();
 
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -783,6 +791,10 @@ reEvents(void)
     glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, img);
     //            glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, (GLvoid*)img);
 
+    t1.stop();
+    std::cout << "Time in reEvents to load: " << t1.getElapsedTimeInMilliSec()<<std::endl;
+
+    t1.start();
     //not on first frame, no image data is apparent
     if (img_old)
     {
@@ -801,13 +813,15 @@ reEvents(void)
         //                double t = GfTimeClock();
         //                if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
         //                    ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
+        delete [] img_old;
     }
     img_old = img;
-    //delete[] img;
-    //free(img);
-
+    img = 0;
+    t1.stop();
+    std::cout << "Time in reEvents to process: " << t1.getElapsedTimeInMilliSec()<<std::endl;
 }
 
+extern pixelBuffer * pboObject;
 
 int
 ReUpdate(void)
@@ -837,9 +851,11 @@ ReUpdate(void)
 			}
 			
 			GfuiDisplay();
-			ReInfo->_reGraphicItf.refresh(ReInfo->s);
-            reEvents();
-			glutPostRedisplay();	/* Callback -> reDisplay */
+            ReInfo->_reGraphicItf.refresh(ReInfo->s);
+
+//            reEvents();
+            pboObject->process();
+			glutPostRedisplay();	/* Callback -> reDisplay */            
 			break;
 
 		case RM_DISP_MODE_NONE:
