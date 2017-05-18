@@ -6,7 +6,7 @@
 class pixelBuffer
 {
 private:
-    const static int pboCount = 3;
+    const static int pboCount = 2;
     unsigned screenWidth;
     unsigned screenHeight;
     unsigned dataSize;
