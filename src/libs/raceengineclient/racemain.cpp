@@ -23,6 +23,7 @@
     @version	$Id: racemain.cpp,v 1.13.2.11 2014/05/22 17:21:38 berniw Exp $
 */
 
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <tgfclient.h>

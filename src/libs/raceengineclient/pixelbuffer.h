@@ -7,16 +7,25 @@ class pixelBuffer
 {
 private:
     const static int pboCount = 2;
+    unsigned pboIndex;
     unsigned screenWidth;
     unsigned screenHeight;
+    unsigned channelSize;
     unsigned dataSize;
-    unsigned int dvsThresh;
-    bool copiedImg;
-    bool mappable;
+    unsigned dvsThresh;
+    bool twoFrames;
+    bool aIsNew;
+    unsigned readCount;
     GLenum pixelFormat;
     GLuint  pboIds[pboCount];    
-    unsigned char *imgOld;    
+    unsigned char *imgA;
+    unsigned char *imgB;
     Timer t1;
+    double tRead;
+    double tMap;
+    double tUnmap;
+    double tProcess;
+    unsigned framesCount;
 
 
 

@@ -514,3 +514,5 @@ windows/main.cpp
 windows/osspec.h
 windows/windowsspec.cpp
 windows/windowsspec.h
+libs/raceengineclient/pixelbuffer.h
+libs/raceengineclient/pixelbuffer.cpp

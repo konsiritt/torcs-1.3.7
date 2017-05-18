@@ -49,7 +49,6 @@
 #define image_height 480
 
 Timer t1;
-float readTime, processTime;
 
 static double	msgDisp;
 static double	bigMsgDisp;
@@ -770,6 +769,10 @@ reCapture(void)
 	free(img);
 }
 
+unsigned eventsCounter = 0;
+double readTime = 0;
+double processTime = 0;
+
 static void
 reEvents(void)
 {
@@ -792,7 +795,8 @@ reEvents(void)
     //            glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, (GLvoid*)img);
 
     t1.stop();
-    std::cout << "Time in reEvents to load: " << t1.getElapsedTimeInMilliSec()<<std::endl;
+    readTime += t1.getElapsedTimeInMilliSec();
+//    std::cout << "Time in reEvents to read: " << t1.getElapsedTimeInMilliSec()<<std::endl;
 
     t1.start();
     //not on first frame, no image data is apparent
@@ -818,7 +822,21 @@ reEvents(void)
     img_old = img;
     img = 0;
     t1.stop();
-    std::cout << "Time in reEvents to process: " << t1.getElapsedTimeInMilliSec()<<std::endl;
+    processTime += t1.getElapsedTimeInMilliSec();
+    //    std::cout << "Time in reEvents to process: " << t1.getElapsedTimeInMilliSec()<<std::endl;
+
+    eventsCounter++;
+
+    if (eventsCounter == 100)
+    {
+        std::cout << " Average times: \n read - \t" << readTime/eventsCounter
+                  << "ms, \n process - \t"          << processTime/eventsCounter
+                  << "ms, \n total - \t"            << (readTime+processTime)/eventsCounter
+                  << std::endl;
+        readTime = 0;
+        processTime = 0;
+        eventsCounter = 0;
+    }
 }
 
 extern pixelBuffer * pboObject;

@@ -361,7 +361,7 @@ void GfScrInit(int argc, char *argv[])
 		}
 	} else {
 		// Compatibility mode.
-		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ALPHA);
 		printf("Visual Properties Report\n");
 		printf("------------------------\n");
 		printf("Compatibility mode, properties unknown.\n");

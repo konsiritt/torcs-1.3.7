@@ -25,6 +25,7 @@
 
 /* The Race Engine State Automaton */
 
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <tgfclient.h>
@@ -104,14 +105,14 @@ ReStateManage(void)
 				}
 				break;
 
-			case RE_STATE_RACE_STOP:
+            case RE_STATE_RACE_STOP:
 				GfOut("RaceEngine: state = RE_STATE_RACE_STOP\n");
 				/* Interrupted by player */
 				mode = ReRaceStop();
 				if (mode & RM_NEXT_STEP) {
 					if (RESTART==1)
 					{
-						RESTART=0;
+						RESTART=0;                        
 						ReRaceCleanup();
 						ReInfo->_reState = RE_STATE_PRE_RACE;
 						GfuiScreenActivate(ReInfo->_reGameScreen);
@@ -124,6 +125,7 @@ ReStateManage(void)
 				break;
 
 			case RE_STATE_RACE_END:
+                std::cout << "RE_STATE_RACE_END in state"<<std::endl;
 				GfOut("RaceEngine: state = RE_STATE_RACE_END\n");
 				mode = ReRaceEnd();
 				if (mode & RM_NEXT_STEP) {
@@ -134,6 +136,7 @@ ReStateManage(void)
 				break;
 
 			case RE_STATE_POST_RACE:
+                std::cout << "RE_STATE_POST_RACE in state"<<std::endl;
 				GfOut("RaceEngine: state = RE_STATE_POST_RACE\n");
 				mode = RePostRace();
 				if (mode & RM_NEXT_STEP) {
@@ -144,6 +147,7 @@ ReStateManage(void)
 				break;
 
 			case RE_STATE_EVENT_SHUTDOWN:
+                std::cout << "RE_STATE_EVENT_SHUTDOWN in state"<<std::endl;
 				GfOut("RaceEngine: state = RE_STATE_EVENT_SHUTDOWN\n");
 				mode = ReEventShutdown();
 				if (mode & RM_NEXT_STEP) {
@@ -154,6 +158,7 @@ ReStateManage(void)
 				break;
 
 			case RE_STATE_SHUTDOWN:
+                std::cout << "RE_STATE_SHUTDOWN in state"<<std::endl;
 				if (ReInfo->_displayMode == RM_DISP_MODE_CONSOLE) {
 					return;
 				}
@@ -165,6 +170,7 @@ ReStateManage(void)
 				break;
 
 			case RE_STATE_EXIT:
+                std::cout << "RE_STATE_EXIT in state"<<std::endl;
 				GfScrShutdown();
 				exit (0);		/* brutal isn't it ? */
 				break;

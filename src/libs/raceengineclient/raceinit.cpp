@@ -827,9 +827,6 @@ ReInitTrack(void)
 void
 ReRaceCleanup(void)
 {
-    std::cout << "ReRaceCleanup now"<<std::endl;
-    delete pboObject;
-
 	ReInfo->_reGameScreen = ReHookInit();
 	ReInfo->_reSimItf.shutdown();
 	if (ReInfo->_displayMode == RM_DISP_MODE_NORMAL) {
@@ -844,6 +841,13 @@ ReRaceCleanup(void)
 void
 ReRaceCleanDrivers(void)
 {
+
+    if (NULL != pboObject)
+    {
+        delete pboObject;
+    }
+    std::cout << "ReRaceCleanDrivers now"<<std::endl;
+
 	int i;
 	tRobotItf *robot;
 	int nCars;
