@@ -136,17 +136,18 @@ void pixelBuffer::process()
 
         if (twoFrames)
         {
-            char temp_lum = 0;
+            int temp_lum = 0;
+            int sizePic = screenWidth*screenHeight;
             // compute luminance difference for each pixel
-            for (unsigned ii=0; ii<screenWidth*screenHeight; ++ii)
+            for (int ii=0; ii<sizePic; ++ii)
             {
-//                int temp_lum = - imgA[ii] + imgB[ii];
-                temp_lum = (char) round(1.0/3.0*(imgA[4*ii] + imgA[4*ii+1] + imgA[4*ii+2] -
-                        imgB[4*ii] - imgB[4*ii+1] - imgB[4*ii+2]));
+                // currently not rounding correctly, just to get visualization through ROS
+                temp_lum = (int) abs(0.33*(imgA[4*ii] + imgA[4*ii+1] + imgA[4*ii+2]
+                                         - imgB[4*ii] - imgB[4*ii+1] - imgB[4*ii+2]));
 
-                if (abs(temp_lum)>dvsThresh)
+                if (temp_lum>dvsThresh)
                 {
-                    pdata[ii] = - temp_lum;
+                    pdata[ii] = (unsigned char)temp_lum; // for now only use unsigned delta luminosity
                 }
                 else
                     pdata[ii] = 0;
