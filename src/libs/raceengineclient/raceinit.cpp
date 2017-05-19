@@ -523,14 +523,11 @@ initPits(void)
 int
 ReInitCars(void)
 {
-    std::cout << "ReInitCars now"<<std::endl;
-
     if (pboObject == NULL)
     {
         int sw, sh, vw, vh;
         GfScrGetSize(&sw, &sh, &vw, &vh);
 
-        std::cout << "instantiate pixelBuffer object with width " << vw << " and height " << vh <<std::endl;
         pboObject = new pixelBuffer(vw,vh);
     }
     else
@@ -541,7 +538,6 @@ ReInitCars(void)
         int sw, sh, vw, vh;
         GfScrGetSize(&sw, &sh, &vw, &vh);
 
-        std::cout << "reinstantiate pixelBuffer object with width " << vw << " and height " << vh <<std::endl;
         pboObject = new pixelBuffer(vw,vh);
 
     }
@@ -860,13 +856,11 @@ ReRaceCleanup(void)
 void
 ReRaceCleanDrivers(void)
 {
-
     if (NULL != pboObject)
     {
         delete pboObject;
         pboObject = NULL;
     }
-    std::cout << "ReRaceCleanDrivers now"<<std::endl;
 
 	int i;
 	tRobotItf *robot;
