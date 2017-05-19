@@ -525,7 +525,26 @@ ReInitCars(void)
 {
     std::cout << "ReInitCars now"<<std::endl;
 
-    pboObject = new pixelBuffer(640,480);
+    if (pboObject == NULL)
+    {
+        int sw, sh, vw, vh;
+        GfScrGetSize(&sw, &sh, &vw, &vh);
+
+        std::cout << "instantiate pixelBuffer object with width " << vw << " and height " << vh <<std::endl;
+        pboObject = new pixelBuffer(vw,vh);
+    }
+    else
+    {
+        delete pboObject;
+        pboObject = NULL;
+
+        int sw, sh, vw, vh;
+        GfScrGetSize(&sw, &sh, &vw, &vh);
+
+        std::cout << "reinstantiate pixelBuffer object with width " << vw << " and height " << vh <<std::endl;
+        pboObject = new pixelBuffer(vw,vh);
+
+    }
 
 	int nCars;
 	int index;
@@ -845,6 +864,7 @@ ReRaceCleanDrivers(void)
     if (NULL != pboObject)
     {
         delete pboObject;
+        pboObject = NULL;
     }
     std::cout << "ReRaceCleanDrivers now"<<std::endl;
 
