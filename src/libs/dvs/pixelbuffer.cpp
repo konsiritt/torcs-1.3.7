@@ -1,10 +1,4 @@
-#include <GL/gl.h>
-#include <stdlib.h>
-#include <iostream>
-#include <cstring>
-#include <math.h>
 
-#include "Timer.h"
 #include "pixelbuffer.h"
 
 pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :

@@ -45,7 +45,7 @@
 #include "racestate.h"
 #include "racegl.h"
 #include "raceresults.h"
-#include "pixelbuffer.h"
+#include "dvs/pixelbuffer.h"
 
 #include "raceinit.h"
 

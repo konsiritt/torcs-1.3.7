@@ -39,9 +39,7 @@
 #include "raceinit.h"
 #include "raceresults.h"
 
-#include "pixelbuffer.h"
-#include "Timer.h"
-
+#include "dvs/pixelbuffer.h"
 
 #include "raceengine.h"
 

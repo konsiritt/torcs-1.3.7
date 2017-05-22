@@ -1,6 +1,19 @@
 #ifndef PIXELBUFFER_H
 #define PIXELBUFFER_H
 
+// Graphics
+#include <GL/gl.h>
+
+// IO
+#include <iostream>
+
+// memcpy
+#include <cstring>
+
+// computation
+#include <math.h>
+#include <stdlib.h>
+
 #include "Timer.h"
 
 class pixelBuffer

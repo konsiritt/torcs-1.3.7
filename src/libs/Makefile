@@ -16,15 +16,15 @@
 ##############################################################################
 
 
-SHIPSUBDIRS	= tgf tgfclient raceengineclient learning musicplayer
+SHIPSUBDIRS	= tgf tgfclient raceengineclient learning musicplayer 
 
 EXPINCDIRS	= txml tgf tgfclient client confscreens racescreens robottools raceengineclient learning \
-			  portability math musicplayer
+			  portability math musicplayer dvs
 
 TOOLSUBDIRS	= txml
 
 SUBDIRS		= confscreens racescreens robottools txml tgf tgfclient client raceengineclient learning \
-			  portability math musicplayer
+			  portability math musicplayer dvs
 
 PKGSUBDIRS	= $(SUBDIRS)
 

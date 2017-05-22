@@ -1,10 +1,10 @@
 ##############################################################################
 #
 #    file                 : Makefile
-#    created              : Sat Mar 18 23:53:52 CET 2000
+#    created              : Sun Jan 30 22:54:37 CET 2000
 #    copyright            : (C) 2000 by Eric Espie                         
 #    email                : torcs@free.fr   
-#    version              : $Id: Makefile,v 1.12.2.1 2011/12/28 15:05:11 berniw Exp $                                  
+#    version              : $Id: Makefile,v 1.5 2002/06/25 21:47:34 torcs Exp $                                  
 #
 ##############################################################################
 #
@@ -15,39 +15,21 @@
 #
 ##############################################################################
 
-TOOLSDIR    = 
 
-TOOLSCRIPT  = torcs
+SOLIBRARY    = libdvs.so
 
-PROGRAM = torcs-bin
+SOLIBDIR     = .
 
-SOURCES = main.cpp linuxspec.cpp
+SOURCES      = pixelbuffer.cpp Timer.cpp
 
-LDFLAGS = -rdynamic
+EXPORTS      = pixelbuffer.h Timer.h
 
-SOLIBS  =  -lclient       \
-	   -lconfscreens  \
-	   -ltgf          \
-	   -ltgfclient    \
-	   -ltxml	  \
-	   -lplibul	  \
-	   -lraceengine   \
-	   -lmusicplayer  \
-	   -lracescreens  \
-	   -lrobottools   \
-	   -llearning	  \
-	   -ldvs
-
-EXPDIR  = include
-
-EXPORTS = osspec.h
+EXPDIR       = include/dvs
 
 src_PKGFILES	= $(shell find * -maxdepth 0 -type f -print)
 
 src_PKGDIR	= ${PACKAGE}-${VERSION}/$(subst ${TORCS_BASE},,$(shell pwd))
 
+
 include ${MAKE_DEFAULT}
-
-
-
 
