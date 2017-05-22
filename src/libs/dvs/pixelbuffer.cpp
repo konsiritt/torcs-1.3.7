@@ -1,17 +1,26 @@
 
 #include "pixelbuffer.h"
 
+
+// configure pixelBuffer and dvsEmulator:
+GLenum pixelFormat_ = GL_BGRA; //Fastest option for map from vram to ram
+unsigned channelSize_ = 4;
+unsigned dvsThreshold_ = 35;
+
+
 pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
+    dvsE(screenWidth_,screenHeight_,
+         channelSize_,dvsThreshold_), //2DO: pass channelSize according to pixelFormat
     pboIndex(0),
     screenWidth(screenWidth_),
     screenHeight(screenHeight_),
     channelSize(0),
     dataSize(0),
-    dvsThresh(35),
+    //dvsThresh(dvsThreshold_),
     twoFrames(false),
     aIsNew(true),
     readCount(0),
-    pixelFormat(GL_BGRA), //Fastest option for map from vram to ram
+    pixFormat(pixelFormat_),
     tRead(0),
     tMap(0),
     tUnmap(0),
@@ -19,24 +28,24 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     framesCount(0)
 
 {
-    if (GL_LUMINANCE == pixelFormat)
+    if (GL_LUMINANCE == pixFormat)
     {
         channelSize = 1;
         dataSize = screenWidth * screenHeight;
     }
-    else if (GL_RGB == pixelFormat || GL_BGR == pixelFormat)
+    else if (GL_RGB == pixFormat || GL_BGR == pixFormat)
     {
         channelSize = 3;
         dataSize = screenWidth * screenHeight * channelSize;
     }
-    else if (GL_RGBA == pixelFormat || GL_BGRA == pixelFormat)
+    else if (GL_RGBA == pixFormat || GL_BGRA == pixFormat)
     {
         channelSize = 4;
         dataSize = screenWidth * screenHeight * channelSize;
     }
 
     imgA = new unsigned char [dataSize];
-    imgB = new unsigned char [dataSize];
+    imgB = new unsigned char [dataSize];    
 
     // Generate pixel buffer objects
     glGenBuffers(pboCount, pboIds);
@@ -89,7 +98,7 @@ void pixelBuffer::process()
         // Use offset instead of ponter.
         // OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
         glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIndex]);
-        glReadPixels(0, 0, screenWidth, screenHeight, pixelFormat, GL_UNSIGNED_BYTE, 0);
+        glReadPixels(0, 0, screenWidth, screenHeight, pixFormat, GL_UNSIGNED_BYTE, 0);
 
         t1.stop();
         tRead += t1.getElapsedTimeInMilliSec();
@@ -130,23 +139,14 @@ void pixelBuffer::process()
 
         if (twoFrames)
         {
-            int temp_lum = 0;
-            int sizePic = screenWidth*screenHeight;
-            // compute luminance difference for each pixel
-            for (int ii=0; ii<sizePic; ++ii)
+            if (aIsNew)
             {
-                // currently not rounding correctly, just to get visualization through ROS
-                temp_lum = (int) abs(0.33*(imgA[4*ii] + imgA[4*ii+1] + imgA[4*ii+2]
-                                         - imgB[4*ii] - imgB[4*ii+1] - imgB[4*ii+2]));
-
-                if (temp_lum>dvsThresh)
-                {
-                    pdata[ii] = (unsigned char)temp_lum; // for now only use unsigned delta luminosity
-                }
-                else
-                    pdata[ii] = 0;
+                dvsE.emulate(imgB,imgA,0,0);
             }
-            *pwritten=1;
+            else
+            {
+                dvsE.emulate(imgA,imgB,0,0);
+            }
             t1.stop();
             tProcess += t1.getElapsedTimeInMilliSec();
             t1.start();
@@ -156,7 +156,7 @@ void pixelBuffer::process()
             twoFrames = true;
         }
 
-        glReadPixels(0, 0, screenWidth, screenHeight, pixelFormat, GL_UNSIGNED_BYTE, 0);
+        glReadPixels(0, 0, screenWidth, screenHeight, pixFormat, GL_UNSIGNED_BYTE, 0);
 
         t1.stop();
         tRead += t1.getElapsedTimeInMilliSec();

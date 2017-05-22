@@ -14,22 +14,27 @@
 #include <math.h>
 #include <stdlib.h>
 
+// execution time measurement
 #include "Timer.h"
+
+// dvs implementation
+#include "dvsemulator.h"
 
 class pixelBuffer
 {
 private:
+    dvsEmulator dvsE;
     const static int pboCount = 2;
     unsigned pboIndex;
     unsigned screenWidth;
     unsigned screenHeight;
     unsigned channelSize;
     unsigned dataSize;
-    unsigned dvsThresh;
+    //unsigned dvsThresh;
     bool twoFrames;
     bool aIsNew;
     unsigned readCount;
-    GLenum pixelFormat;
+    GLenum pixFormat;
     GLuint  pboIds[pboCount];    
     unsigned char *imgA;
     unsigned char *imgB;
@@ -39,8 +44,6 @@ private:
     double tUnmap;
     double tProcess;
     unsigned framesCount;
-
-
 
 public:
     pixelBuffer(unsigned screenWidth_, unsigned screenHeight_);
