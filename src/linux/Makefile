@@ -36,7 +36,9 @@ SOLIBS  =  -lclient       \
 	   -lracescreens  \
 	   -lrobottools   \
 	   -llearning	  \
-	   -ldvs
+	   -ldvs \
+	   -lrt \
+	   -lpthread
 
 EXPDIR  = include
 

@@ -27,6 +27,11 @@
 #include "linuxspec.h"
 #include <raceinit.h>
 
+// boost shared mem
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/interprocess/sync/interprocess_mutex.hpp>
 
 #include <sys/shm.h> 
 #define image_width 640
@@ -164,6 +169,32 @@ int* psave_flag = NULL;
 
 void *shm = NULL;
 
+// struct for use in interface emulator <-> ROS
+struct shared_mem_emul
+{
+    shared_mem_emul() :
+        aIsNew(true),
+        timeA(0),
+        timeB(0),
+        imageA(),
+        imageB()
+    {
+    }
+
+    bool aIsNew;
+    double timeA;
+    double timeB;
+    unsigned char imageA[640*480*4]; //2DO: make sizing according to screen size (possible relocate to pixelbuffer)
+    unsigned char imageB[640*480*4];
+
+    //Mutex to protect access to the queue
+    boost::interprocess::interprocess_mutex mutex;
+
+};
+namespace bip = boost::interprocess;
+
+shared_mem_emul * dataShrdMain = NULL;
+
 /*
  * Function
  *	main
@@ -214,9 +245,36 @@ main(int argc, char *argv[])
     pzmq_flag = &shared->zmq_flag;
 	psave_flag = &shared->save_flag;
 
-	const char *raceconfig = "";
+    // ---- memory sharing using boost library to use in emulator to ros interface ---//
+    // initialize shared memory
 
-	init_args(argc, argv, &raceconfig);
+    //Erase previous shared memory
+    bip::shared_memory_object::remove("shared_memory");
+
+    //Create a shared memory object.
+    bip::shared_memory_object shm (bip::open_or_create, "shared_memory", bip::read_write);
+
+    //Set size
+    shm.truncate(sizeof(shared_mem_emul));
+
+    //Map the whole shared memory in this process
+    bip::mapped_region region(shm, bip::read_write);
+
+    //Get the address of the mapped region
+    void * addr       = region.get_address();
+
+    //Construct the shared structure in memory
+    dataShrdMain = new (addr) shared_mem_emul;
+
+    memset(dataShrdMain->imageA, 0, sizeof(dataShrdMain->imageA));
+    memset(dataShrdMain->imageB, 0, sizeof(dataShrdMain->imageB));
+
+    std::cout << "Memory sharing for emulator events initialized" << std::endl;
+
+
+    const char *raceconfig = "";
+
+    init_args(argc, argv, &raceconfig);
 	LinuxSpecInit();			/* init specific linux functions */
 
 	if(strlen(raceconfig) == 0) {
@@ -228,7 +286,6 @@ main(int argc, char *argv[])
 		// Thought for blind scripted AI training
 		ReRunRaceOnConsole(raceconfig);
 	}
-
 	return 0;					/* just for the compiler, never reached */
 }
 

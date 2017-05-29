@@ -22,7 +22,6 @@ private:
 public:
     dvsEmulator(unsigned screenWidth_, unsigned screenHeight_,
                 unsigned channelSize_, unsigned dvsThresh_);
-    ~dvsEmulator();
 
     void emulate(unsigned char * oldFrame_, unsigned char * newFrame_, double timeOld_, double timeNew_);
 

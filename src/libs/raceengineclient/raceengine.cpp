@@ -870,7 +870,7 @@ ReUpdate(void)
             ReInfo->_reGraphicItf.refresh(ReInfo->s);
 
 //            reEvents();
-            pboObject->process();
+            pboObject->process(ReInfo->s->currentTime);
 			glutPostRedisplay();	/* Callback -> reDisplay */            
 			break;
 

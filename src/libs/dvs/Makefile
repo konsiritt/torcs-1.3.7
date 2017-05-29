@@ -26,6 +26,8 @@ EXPORTS      = pixelbuffer.h Timer.h dvsemulator.h
 
 EXPDIR       = include/dvs
 
+LIBS      = -lrt
+
 src_PKGFILES	= $(shell find * -maxdepth 0 -type f -print)
 
 src_PKGDIR	= ${PACKAGE}-${VERSION}/$(subst ${TORCS_BASE},,$(shell pwd))

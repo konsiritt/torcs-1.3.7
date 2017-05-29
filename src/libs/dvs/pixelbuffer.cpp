@@ -1,6 +1,9 @@
 
 #include "pixelbuffer.h"
 
+namespace bip = boost::interprocess;
+
+extern shared_mem_emul * dataShrdMain;
 
 // configure pixelBuffer and dvsEmulator:
 GLenum pixelFormat_ = GL_BGRA; //Fastest option for map from vram to ram
@@ -9,8 +12,8 @@ unsigned dvsThreshold_ = 35;
 
 
 pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
-    dvsE(screenWidth_,screenHeight_,
-         channelSize_,dvsThreshold_), //2DO: pass channelSize according to pixelFormat
+//    dvsE(screenWidth_,screenHeight_,
+//         channelSize_,dvsThreshold_), //2DO: pass channelSize according to pixelFormat
     pboIndex(0),
     screenWidth(screenWidth_),
     screenHeight(screenHeight_),
@@ -26,8 +29,12 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     tUnmap(0),
     tProcess(0),
     framesCount(0)
-
 {
+    for (int i=0; i<pboCount; ++i)
+    {
+        simTime[i] = 0;
+    }
+
     if (GL_LUMINANCE == pixFormat)
     {
         channelSize = 1;
@@ -56,6 +63,9 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
+    //link the shared structure in memory
+    dataShrd = dataShrdMain;
+
 }
 
 
@@ -72,6 +82,11 @@ pixelBuffer::~pixelBuffer()
         delete [] imgB;
         imgB = NULL;
     }
+
+    //Erase shared memory
+    bip::shared_memory_object::remove("shared_memory");
+
+    std::cout << "PBO-Object destroyed" << std::endl;
 }
 
 int pixelBuffer::resize(unsigned screenWidth_, unsigned screenHeight_)
@@ -82,11 +97,11 @@ int pixelBuffer::resize(unsigned screenWidth_, unsigned screenHeight_)
 extern int* pwritten;
 extern uint8_t* pdata;
 
-void pixelBuffer::process()
+void pixelBuffer::process(double currentTime_)
 {
     unsigned char* gpuPtr;
 
-    // make sure all our pbos are bound
+    // make sure all our pbos are bound to make use of asynchronous read of VRAM without blocking calls
     if (readCount < pboCount)
     {
         // set the framebuffer to read
@@ -98,6 +113,11 @@ void pixelBuffer::process()
         // Use offset instead of ponter.
         // OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
         glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIndex]);
+
+        // get the current simulation time as time stamp for event timing
+        simTime[pboIndex] = currentTime_;
+
+        // important: the internal format needs to match the pixFormat to return fast
         glReadPixels(0, 0, screenWidth, screenHeight, pixFormat, GL_UNSIGNED_BYTE, 0);
 
         t1.stop();
@@ -105,6 +125,7 @@ void pixelBuffer::process()
 
         readCount++;
     }
+    // only when all pbo's have been bound, then start mapping (where blocking might still occur)
     else
     {
         t1.start();
@@ -115,17 +136,22 @@ void pixelBuffer::process()
 
         t1.stop();
         tMap += t1.getElapsedTimeInMilliSec();
-
         t1.start();
 
+        // copy from VRAM to RAM
         if (NULL != gpuPtr) {
+
             if (aIsNew)
             {
-                std::memcpy(imgA, gpuPtr, dataSize);
+//                std::memcpy(imgA, gpuPtr, dataSize);
+                bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
+                std::memcpy(dataShrd->imageA, gpuPtr, dataSize);
             }
             else
             {
-                std::memcpy(imgB, gpuPtr, dataSize);
+//                std::memcpy(imgB, gpuPtr, dataSize);
+                bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
+                std::memcpy(dataShrd->imageB, gpuPtr, dataSize);
             }
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         }
@@ -137,16 +163,18 @@ void pixelBuffer::process()
         tUnmap += t1.getElapsedTimeInMilliSec();
         t1.start();
 
+        // check if enough frames exist to perform first event emulation
         if (twoFrames)
         {
-            if (aIsNew)
-            {
-                dvsE.emulate(imgB,imgA,0,0);
-            }
-            else
-            {
-                dvsE.emulate(imgA,imgB,0,0);
-            }
+//            // call the emulator class to perform event generation
+//            if (aIsNew)
+//            {
+//                dvsE.emulate(imgB,imgA,0,0);
+//            }
+//            else
+//            {
+//                dvsE.emulate(imgA,imgB,0,0);
+//            }
             t1.stop();
             tProcess += t1.getElapsedTimeInMilliSec();
             t1.start();
@@ -156,6 +184,10 @@ void pixelBuffer::process()
             twoFrames = true;
         }
 
+        // get the current simulation time as time stamp for event timing
+        simTime[pboIndex] = currentTime_;
+
+        // schedule new glReadPixels for next frame into the pbo
         glReadPixels(0, 0, screenWidth, screenHeight, pixFormat, GL_UNSIGNED_BYTE, 0);
 
         t1.stop();
@@ -164,11 +196,13 @@ void pixelBuffer::process()
     }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
+    // advance counters and booleans
     aIsNew = !aIsNew;
     ++pboIndex;
     pboIndex = pboIndex % pboCount;
     ++framesCount;
 
+    // output of runtimes for different sections
     if (framesCount == 100)
     {
         std::cout << " Average times: \n read - \t" << tRead/framesCount

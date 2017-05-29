@@ -10,6 +10,12 @@
 // memcpy
 #include <cstring>
 
+// boost shared mem
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/interprocess/sync/interprocess_mutex.hpp>
+
 // computation
 #include <math.h>
 #include <stdlib.h>
@@ -20,10 +26,34 @@
 // dvs implementation
 #include "dvsemulator.h"
 
+
+struct shared_mem_emul
+{
+    shared_mem_emul() :
+        aIsNew(true),
+        timeA(0),
+        timeB(0),
+        imageA(),
+        imageB()
+    {
+    }
+
+    bool aIsNew;
+    double timeA;
+    double timeB;
+    unsigned char imageA[640*480*4];
+    unsigned char imageB[640*480*4];
+
+    //Mutex to protect access to the queue
+    boost::interprocess::interprocess_mutex mutex;
+
+};
+
+
 class pixelBuffer
 {
 private:
-    dvsEmulator dvsE;
+//    dvsEmulator dvsE;
     const static int pboCount = 2;
     unsigned pboIndex;
     unsigned screenWidth;
@@ -44,6 +74,8 @@ private:
     double tUnmap;
     double tProcess;
     unsigned framesCount;
+    shared_mem_emul *dataShrd;
+    double simTime [pboCount];
 
 public:
     pixelBuffer(unsigned screenWidth_, unsigned screenHeight_);
@@ -60,7 +92,7 @@ public:
     /**
      * @brief process computes luminosity difference between two consecutive frames
      */
-    void process();
+    void process(double currentTime_);
 
 
 };
