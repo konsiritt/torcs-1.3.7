@@ -15,6 +15,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
+#include <boost/interprocess/sync/named_mutex.hpp>
 
 // computation
 #include <math.h>
@@ -34,7 +35,8 @@ struct shared_mem_emul
         timeA(0),
         timeB(0),
         imageA(),
-        imageB()
+        imageB(),
+        mutex()
     {
     }
 

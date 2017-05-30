@@ -177,7 +177,8 @@ struct shared_mem_emul
         timeA(0),
         timeB(0),
         imageA(),
-        imageB()
+        imageB(),
+        mutex()
     {
     }
 
@@ -246,10 +247,12 @@ main(int argc, char *argv[])
 	psave_flag = &shared->save_flag;
 
     // ---- memory sharing using boost library to use in emulator to ros interface ---//
-    // initialize shared memory
-
-    //Erase previous shared memory
-    bip::shared_memory_object::remove("shared_memory");
+    //Remove shared memory on construction and destruction
+    struct shm_remove
+    {
+        shm_remove() { bip::shared_memory_object::remove("shared_memory"); }
+        ~shm_remove(){ bip::shared_memory_object::remove("shared_memory"); }
+    } remover;
 
     //Create a shared memory object.
     bip::shared_memory_object shm (bip::open_or_create, "shared_memory", bip::read_write);

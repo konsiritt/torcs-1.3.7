@@ -63,7 +63,7 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
-    //link the shared structure in memory
+    //link the shared structure in memory (main.cpp)
     dataShrd = dataShrdMain;
 
 }
@@ -141,27 +141,30 @@ void pixelBuffer::process(double currentTime_)
         // copy from VRAM to RAM
         if (NULL != gpuPtr) {
 
-            if (aIsNew)
             {
-//                std::memcpy(imgA, gpuPtr, dataSize);
                 bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
-                std::memcpy(dataShrd->imageA, gpuPtr, dataSize);
-            }
-            else
-            {
-//                std::memcpy(imgB, gpuPtr, dataSize);
-                bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
-                std::memcpy(dataShrd->imageB, gpuPtr, dataSize);
+                t1.stop();
+                tUnmap += t1.getElapsedTimeInMilliSec();
+                t1.start();
+
+                if (dataShrd->aIsNew)
+                {
+                    std::memcpy(dataShrd->imageB, gpuPtr, dataSize);
+                    dataShrd->timeB = currentTime_;
+                    dataShrd->aIsNew = !dataShrd->aIsNew;
+                }
+                else
+                {
+                    std::memcpy(dataShrd->imageA, gpuPtr, dataSize);
+                    dataShrd->timeA= currentTime_;
+                    dataShrd->aIsNew = !dataShrd->aIsNew;
+                }
             }
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         }
         else {
             std::cout<<"Failed to map the buffer"<<std::endl;
         }
-
-        t1.stop();
-        tUnmap += t1.getElapsedTimeInMilliSec();
-        t1.start();
 
         // check if enough frames exist to perform first event emulation
         if (twoFrames)
@@ -196,14 +199,13 @@ void pixelBuffer::process(double currentTime_)
     }
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
-    // advance counters and booleans
-    aIsNew = !aIsNew;
+    // advance counters
     ++pboIndex;
     pboIndex = pboIndex % pboCount;
     ++framesCount;
 
     // output of runtimes for different sections
-    if (framesCount == 100)
+    if ((tRead+tMap+tUnmap+tProcess) >= 2000)
     {
         std::cout << " Average times: \n read - \t" << tRead/framesCount
                   << "ms, \n map it - \t"           << tMap/framesCount
