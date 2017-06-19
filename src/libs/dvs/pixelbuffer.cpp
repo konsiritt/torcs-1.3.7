@@ -5,12 +5,6 @@ namespace bip = boost::interprocess;
 
 extern shared_mem_emul * dataShrdMain;
 
-// configure pixelBuffer and dvsEmulator:
-GLenum pixelFormat_ = GL_BGRA; //Fastest option for map from vram to ram
-unsigned channelSize_ = 4;
-unsigned dvsThreshold_ = 35;
-
-
 pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
 //    dvsE(screenWidth_,screenHeight_,
 //         channelSize_,dvsThreshold_), //2DO: pass channelSize according to pixelFormat
@@ -23,7 +17,7 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     twoFrames(false),
     aIsNew(true),
     readCount(0),
-    pixFormat(pixelFormat_),
+    pixFormat(pixel_format),
     tRead(0),
     tMap(0),
     tUnmap(0),
@@ -159,6 +153,11 @@ void pixelBuffer::process(double currentTime_)
                     dataShrd->timeA= currentTime_;
                     dataShrd->aIsNew = !dataShrd->aIsNew;
                 }
+
+                // flag that frame data has been updated
+                dataShrd->frameUpdated = true;
+                // notify the emulating process of newly available data
+                dataShrd->condNew.notify_one();
             }
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         }
@@ -205,14 +204,15 @@ void pixelBuffer::process(double currentTime_)
     ++framesCount;
 
     // output of runtimes for different sections
-    if ((tRead+tMap+tUnmap+tProcess) >= 2000)
+    if (framesCount == 60 ) //((tRead+tMap+tUnmap+tProcess) >= 2000)
     {
-        std::cout << " Average times: \n read - \t" << tRead/framesCount
-                  << "ms, \n map it - \t"           << tMap/framesCount
-                  << "ms, \n copy it - \t"          << tUnmap/framesCount
-                  << "ms, \n process - \t"          << tProcess/framesCount
-                  << "ms, \n total - \t"            << (tRead+tMap+tUnmap+tProcess)/framesCount
-                  << std::endl;
+
+//        std::cout << " Average times: \n read - \t" << tRead/framesCount
+//                  << "ms, \n map it - \t"           << tMap/framesCount
+//                  << "ms, \n copy it - \t"          << tUnmap/framesCount
+//                  << "ms, \n process - \t"          << tProcess/framesCount
+//                  << "ms, \n total - \t"            << (tRead+tMap+tUnmap+tProcess)/framesCount
+//                  << std::endl;
         tRead = 0;
         tMap = 0;
         tUnmap = 0;
