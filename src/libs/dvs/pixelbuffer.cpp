@@ -15,7 +15,6 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     dataSize(0),
     //dvsThresh(dvsThreshold_),
     twoFrames(false),
-    aIsNew(true),
     readCount(0),
     pixFormat(pixel_format),
     tRead(0),
@@ -98,10 +97,10 @@ void pixelBuffer::process(double currentTime_)
     // make sure all our pbos are bound to make use of asynchronous read of VRAM without blocking calls
     if (readCount < pboCount)
     {
-        // set the framebuffer to read
-        glReadBuffer(GL_FRONT);
-
         t1.start();
+
+        // set the framebuffer to read
+        glReadBuffer(GL_FRONT);        
 
         // copy pixels from framebuffer to PBO
         // Use offset instead of ponter.
@@ -136,28 +135,28 @@ void pixelBuffer::process(double currentTime_)
         if (NULL != gpuPtr) {
 
             {
-                bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
+                bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);                
                 t1.stop();
                 tUnmap += t1.getElapsedTimeInMilliSec();
                 t1.start();
 
-                if (dataShrd->aIsNew)
-                {
-                    std::memcpy(dataShrd->imageB, gpuPtr, dataSize);
-                    dataShrd->timeB = currentTime_;
-                    dataShrd->aIsNew = !dataShrd->aIsNew;
+                // check if enough frames exist to perform first event emulation
+                if (twoFrames) {
+                    std::memcpy(dataShrd->imageNew, gpuPtr, dataSize);
+                    dataShrd->timeRef = dataShrd->timeNew;
+                    dataShrd->timeNew = simTime[pboIndex];
+
+                    // flag that frame data has been updated
+                    dataShrd->frameUpdated = true;
+                    // notify the emulating process of newly available data
+                    dataShrd->condNew.notify_one();
                 }
                 else
                 {
-                    std::memcpy(dataShrd->imageA, gpuPtr, dataSize);
-                    dataShrd->timeA= currentTime_;
-                    dataShrd->aIsNew = !dataShrd->aIsNew;
+                    twoFrames = true;
+                    std::memcpy(dataShrd->imageRef, gpuPtr, dataSize);
+                    dataShrd->timeRef = simTime[pboIndex];
                 }
-
-                // flag that frame data has been updated
-                dataShrd->frameUpdated = true;
-                // notify the emulating process of newly available data
-                dataShrd->condNew.notify_one();
             }
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         }
@@ -165,26 +164,9 @@ void pixelBuffer::process(double currentTime_)
             std::cout<<"Failed to map the buffer"<<std::endl;
         }
 
-        // check if enough frames exist to perform first event emulation
-        if (twoFrames)
-        {
-//            // call the emulator class to perform event generation
-//            if (aIsNew)
-//            {
-//                dvsE.emulate(imgB,imgA,0,0);
-//            }
-//            else
-//            {
-//                dvsE.emulate(imgA,imgB,0,0);
-//            }
-            t1.stop();
-            tProcess += t1.getElapsedTimeInMilliSec();
-            t1.start();
-        }
-        else
-        {
-            twoFrames = true;
-        }
+        t1.stop();
+        tProcess += t1.getElapsedTimeInMilliSec();
+        t1.start();
 
         // get the current simulation time as time stamp for event timing
         simTime[pboIndex] = currentTime_;
@@ -207,12 +189,12 @@ void pixelBuffer::process(double currentTime_)
     if (framesCount == 60 ) //((tRead+tMap+tUnmap+tProcess) >= 2000)
     {
 
-//        std::cout << " Average times: \n read - \t" << tRead/framesCount
-//                  << "ms, \n map it - \t"           << tMap/framesCount
-//                  << "ms, \n copy it - \t"          << tUnmap/framesCount
-//                  << "ms, \n process - \t"          << tProcess/framesCount
-//                  << "ms, \n total - \t"            << (tRead+tMap+tUnmap+tProcess)/framesCount
-//                  << std::endl;
+        std::cout << " Average times: \n read - \t" << tRead/framesCount
+                  << "ms, \n map it - \t"           << tMap/framesCount
+                  << "ms, \n mutexed  - \t"          << tUnmap/framesCount
+                  << "ms, \n copied - \t"          << tProcess/framesCount
+                  << "ms, \n total - \t"            << (tRead+tMap+tUnmap+tProcess)/framesCount
+                  << std::endl;
         tRead = 0;
         tMap = 0;
         tUnmap = 0;

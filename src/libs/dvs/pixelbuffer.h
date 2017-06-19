@@ -33,22 +33,18 @@
 struct shared_mem_emul
 {
     shared_mem_emul() :
-        aIsNew(true),
-        timeA(0),
-        timeB(0),
-        imageA(),
-        imageB(),
+        timeNew(0),
+        timeRef(0),
+        imageNew(),
+        imageRef(),
         frameUpdated(false),
         mutex()
     {
     }
-
-    //boolean differentiating between old and new frame
-    bool aIsNew;
-    double timeA;
-    double timeB;
-    unsigned char imageA[image_width*image_height*4];
-    unsigned char imageB[image_width*image_height*4];
+    double timeNew;
+    double timeRef;
+    unsigned char imageNew[image_width*image_height*4];
+    unsigned char imageRef[image_width*image_height*4];
 
     //boolean updated when new frame was written
     bool frameUpdated;
@@ -73,7 +69,6 @@ private:
     unsigned dataSize;
     //unsigned dvsThresh;
     bool twoFrames;
-    bool aIsNew;
     unsigned readCount;
     GLenum pixFormat;
     GLuint  pboIds[pboCount];    
