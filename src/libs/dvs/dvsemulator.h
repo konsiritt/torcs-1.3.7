@@ -9,6 +9,8 @@
 // uint8_t
 #include <stdint.h>
 
+#include"config_dvs.h"
+
 class dvsEmulator
 {
 private:
