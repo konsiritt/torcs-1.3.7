@@ -33,3 +33,10 @@
 
 # Dependencies qtcreator
 *.depend
+
+# qtcreator files
+*.config
+*.user
+*.files
+*.includes
+*.creator
