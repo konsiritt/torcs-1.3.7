@@ -21,7 +21,8 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     tMap(0),
     tUnmap(0),
     tProcess(0),
-    framesCount(0)
+    framesCount(0),
+    linLogLim(lin_log_lim)
 {
     for (int i=0; i<pboCount; ++i)
     {
@@ -154,7 +155,13 @@ void pixelBuffer::process(double currentTime_)
                 else
                 {
                     twoFrames = true;
-                    std::memcpy(dataShrd->imageRef, gpuPtr, dataSize);
+
+                    int sizePic = screenWidth*screenHeight;
+                    for (int ii=0; ii<sizePic; ++ii)
+                    {
+                        // currently not rounding correctly, just to get visualization through ROS
+                        dataShrd->imageRef[ii] =  linlog(0.33*(gpuPtr[4*ii] + gpuPtr[4*ii+1] + gpuPtr[4*ii+2]));
+                    }
                     dataShrd->timeRef = simTime[pboIndex];
                 }
             }

@@ -44,7 +44,7 @@ struct shared_mem_emul
     double timeNew;
     double timeRef;
     unsigned char imageNew[image_width*image_height*4];
-    unsigned char imageRef[image_width*image_height*4];
+    double imageRef[image_width*image_height];
 
     //boolean updated when new frame was written
     bool frameUpdated;
@@ -82,6 +82,7 @@ private:
     unsigned framesCount;
     shared_mem_emul *dataShrd;
     double simTime [pboCount];
+    double linLogLim;
 
 public:
     pixelBuffer(unsigned screenWidth_, unsigned screenHeight_);
@@ -99,6 +100,21 @@ public:
      * @brief process computes luminosity difference between two consecutive frames
      */
     void process(double currentTime_);
+
+    /**
+     * @brief linlog computes mix of linear and log response to avoid near zero problems of log
+     * @param arg
+     * @return
+     */
+    inline double linlog(double arg)
+    {
+        if (arg>linLogLim)
+        {
+            return log(arg);
+        }
+        else
+            return log(linLogLim)/linLogLim*arg;
+    }
 
 
 };

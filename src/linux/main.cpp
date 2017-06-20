@@ -185,7 +185,7 @@ struct shared_mem_emul
     double timeNew;
     double timeRef;
     unsigned char imageNew[image_width*image_height*4];
-    unsigned char imageRef[image_width*image_height*4];
+    double imageRef[image_width*image_height];
 
     //boolean updated when new frame was written
     bool frameUpdated;
