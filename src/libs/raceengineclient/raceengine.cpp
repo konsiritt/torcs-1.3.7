@@ -43,8 +43,8 @@
 
 #include "raceengine.h"
 
-#define image_width 640
-#define image_height 480
+//#define image_width 640
+//#define image_height 480
 
 Timer t1;
 
@@ -646,11 +646,11 @@ ReRaceRules(tCarElt *car)
 		}
 	}
 }
-extern int* pwritten;
-extern uint8_t* pdata;
-extern int* ppause;
-extern int* pzmq_flag;
-extern int* psave_flag;
+//extern int* pwritten;
+//extern uint8_t* pdata;
+//extern int* ppause;
+//extern int* pzmq_flag;
+//extern int* psave_flag;
 
 int count=0;
 
@@ -767,75 +767,75 @@ reCapture(void)
 	free(img);
 }
 
-unsigned eventsCounter = 0;
-double readTime = 0;
-double processTime = 0;
+//unsigned eventsCounter = 0;
+//double readTime = 0;
+//double processTime = 0;
 
-static void
-reEvents(void)
-{
-    int sw, sh, vw, vh;
+//static void
+//reEvents(void)
+//{
+//    int sw, sh, vw, vh;
 
-    GfScrGetSize(&sw, &sh, &vw, &vh);
+//    GfScrGetSize(&sw, &sh, &vw, &vh);
 
-    unsigned char *img = new unsigned char [vw*vh];
+//    unsigned char *img = new unsigned char [vw*vh];
 
-    if (img == NULL) {
-        return;
-    }
+//    if (img == NULL) {
+//        return;
+//    }
 
-    t1.start();
+//    t1.start();
 
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(GL_FRONT);
-    glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, img);
-    //            glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, (GLvoid*)img);
+//    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+//    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+//    glReadBuffer(GL_FRONT);
+//    glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, img);
+//    //            glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, (GLvoid*)img);
 
-    t1.stop();
-    readTime += t1.getElapsedTimeInMilliSec();
-//    std::cout << "Time in reEvents to read: " << t1.getElapsedTimeInMilliSec()<<std::endl;
+//    t1.stop();
+//    readTime += t1.getElapsedTimeInMilliSec();
+////    std::cout << "Time in reEvents to read: " << t1.getElapsedTimeInMilliSec()<<std::endl;
 
-    t1.start();
-    //not on first frame, no image data is apparent
-    if (img_old)
-    {
-        // obtain difference in luminosity:
-        for (int ii=0; ii<vw*vh; ++ii)
-        {
-            if (abs(- img[ii] + img_old[ii])>dvs_thresh)
-            {
-                pdata[ii] = - img[ii] + img_old[ii];
-            }
-            else
-                pdata[ii] = 0;
+//    t1.start();
+//    //not on first frame, no image data is apparent
+//    if (img_old)
+//    {
+//        // obtain difference in luminosity:
+//        for (int ii=0; ii<vw*vh; ++ii)
+//        {
+//            if (abs(- img[ii] + img_old[ii])>dvs_thresh)
+//            {
+//                pdata[ii] = - img[ii] + img_old[ii];
+//            }
+//            else
+//                pdata[ii] = 0;
 
-        }
-        *pwritten=1;
-        //                double t = GfTimeClock();
-        //                if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
-        //                    ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
-        delete [] img_old;
-    }
-    img_old = img;
-    img = 0;
-    t1.stop();
-    processTime += t1.getElapsedTimeInMilliSec();
-    //    std::cout << "Time in reEvents to process: " << t1.getElapsedTimeInMilliSec()<<std::endl;
+//        }
+//        *pwritten=1;
+//        //                double t = GfTimeClock();
+//        //                if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
+//        //                    ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
+//        delete [] img_old;
+//    }
+//    img_old = img;
+//    img = 0;
+//    t1.stop();
+//    processTime += t1.getElapsedTimeInMilliSec();
+//    //    std::cout << "Time in reEvents to process: " << t1.getElapsedTimeInMilliSec()<<std::endl;
 
-    eventsCounter++;
+//    eventsCounter++;
 
-    if (eventsCounter == 100)
-    {
-        std::cout << " Average times: \n read - \t" << readTime/eventsCounter
-                  << "ms, \n process - \t"          << processTime/eventsCounter
-                  << "ms, \n total - \t"            << (readTime+processTime)/eventsCounter
-                  << std::endl;
-        readTime = 0;
-        processTime = 0;
-        eventsCounter = 0;
-    }
-}
+//    if (eventsCounter == 100)
+//    {
+//        std::cout << " Average times: \n read - \t" << readTime/eventsCounter
+//                  << "ms, \n process - \t"          << processTime/eventsCounter
+//                  << "ms, \n total - \t"            << (readTime+processTime)/eventsCounter
+//                  << std::endl;
+//        readTime = 0;
+//        processTime = 0;
+//        eventsCounter = 0;
+//    }
+//}
 
 extern pixelBuffer * pboObject;
 

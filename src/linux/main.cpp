@@ -35,10 +35,16 @@
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 
 #include <sys/shm.h> 
-#define image_width 320 //640
-#define image_height 240 //480
+
 #include <iostream> 
 #include <unistd.h> 
+
+// config for shared memory setup: including screen resolution
+#include "../libs/dvs/config_dvs.h"
+//debug shmget error:
+//#include <errno.h>
+//#define image_width 640 //320 //
+//#define image_height 480 //240 //
 
 
 extern bool bKeepModules;
@@ -153,22 +159,22 @@ init_args(int argc, char **argv, const char **raceconfig)
 #endif
 }
 
-struct shared_use_st  
-{  
-    int written;
-    uint8_t data[image_width*image_height*3];
-    int pause;
-    int zmq_flag;   
-    int save_flag;  
-};
+//struct shared_use_st
+//{
+//    int written;
+//    uint8_t data[image_width*image_height*3];
+//    int pause;
+//    int zmq_flag;
+//    int save_flag;
+//};
 
-int* pwritten = NULL;
-uint8_t* pdata = NULL;
-int* ppause = NULL;
-int* pzmq_flag = NULL;
-int* psave_flag = NULL;
+//int* pwritten = NULL;
+//uint8_t* pdata = NULL;
+//int* ppause = NULL;
+//int* pzmq_flag = NULL;
+//int* psave_flag = NULL;
 
-void *shm = NULL;
+//void *shm = NULL;
 
 // struct for use in interface emulator <-> ROS
 struct shared_mem_emul
@@ -220,36 +226,39 @@ shared_mem_emul * dataShrdMain = NULL;
 int
 main(int argc, char *argv[])
 {
-	struct shared_use_st *shared = NULL;
-    int shmid; 
-    // establish memory sharing 
-    shmid = shmget((key_t)1234, sizeof(struct shared_use_st), 0666|IPC_CREAT);  
-    if(shmid == -1)  
-    {  
-        fprintf(stderr, "shmget failed\n");  
-        exit(EXIT_FAILURE);  
-    }  
+//	struct shared_use_st *shared = NULL;
+//    int shmid;
+//    // establish memory sharing
+//    shmid = shmget((key_t)1235, sizeof(struct shared_use_st), 0666|IPC_CREAT);
+//    if(shmid == -1)
+//    {
+//        int errsv = errno;
+//        std::cout << "shmget error number: " << errsv << std::endl;
+//        fprintf(stderr, "shmget failed\n");
+
+//        exit(EXIT_FAILURE);
+//    }
   
-    shm = shmat(shmid, 0, 0);  
-    if(shm == (void*)-1)  
-    {  
-        fprintf(stderr, "shmat failed\n");  
-        exit(EXIT_FAILURE);  
-    }  
-    printf("\n********** Memory sharing started, attached at %X **********\n \n", shm);  
-    // set up shared memory 
-    shared = (struct shared_use_st*)shm;  
-    shared->written = 0;
-    shared->pause = 0;
-    shared->zmq_flag = 0;  
-    shared->save_flag = 0;
+//    shm = shmat(shmid, 0, 0);
+//    if(shm == (void*)-1)
+//    {
+//        fprintf(stderr, "shmat failed\n");
+//        exit(EXIT_FAILURE);
+//    }
+//    printf("\n********** Memory sharing started, attached at %X **********\n \n", shm);
+//    // set up shared memory
+//    shared = (struct shared_use_st*)shm;
+//    shared->written = 0;
+//    shared->pause = 0;
+//    shared->zmq_flag = 0;
+//    shared->save_flag = 0;
 
  
-    pwritten=&shared->written;
-    pdata=shared->data;
-    ppause=&shared->pause;
-    pzmq_flag = &shared->zmq_flag;
-	psave_flag = &shared->save_flag;
+//    pwritten=&shared->written;
+//    pdata=shared->data;
+//    ppause=&shared->pause;
+//    pzmq_flag = &shared->zmq_flag;
+//	psave_flag = &shared->save_flag;
 
     // ---- memory sharing using boost library to use in emulator to ros interface ---//
     //Remove shared memory on construction and destruction
