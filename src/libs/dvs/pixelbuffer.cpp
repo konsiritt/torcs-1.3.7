@@ -88,9 +88,6 @@ int pixelBuffer::resize(unsigned screenWidth_, unsigned screenHeight_)
     return 0;
 }
 
-extern int* pwritten;
-extern uint8_t* pdata;
-
 void pixelBuffer::process(double currentTime_)
 {
     unsigned char* gpuPtr;
