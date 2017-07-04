@@ -24,9 +24,6 @@
 // execution time measurement
 #include "Timer.h"
 
-// dvs implementation
-#include "dvsemulator.h"
-
 #include "config_dvs.h"
 
 
