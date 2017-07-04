@@ -176,7 +176,13 @@ init_args(int argc, char **argv, const char **raceconfig)
 
 //void *shm = NULL;
 
-// struct for use in interface emulator <-> ROS
+//****************************************************************
+///! Structs
+//****************************************************************
+
+//! struct that is kept in shared memory
+//! ATTENTION: changes here need to be performed in emulator.h
+//! in my_ros_dvs_emulator where frames are read from shared memory
 struct shared_mem_emul
 {
     shared_mem_emul() :
@@ -188,18 +194,22 @@ struct shared_mem_emul
         mutex()
     {
     }
+    //! time stamp of newly acquired frame
     double timeNew;
+    //! time stamp of last frame
     double timeRef;
+    //! RGBA values of newly acquired frame
     unsigned char imageNew[image_width*image_height*4];
+    //! log(luminance) value of reference frame (last event generated)
     double imageRef[image_width*image_height];
 
-    //boolean updated when new frame was written
+    //! true when new frame was written
     bool frameUpdated;
 
-    //Mutex to protect access to the queue
+    //! Mutex to protect access to the queue
     boost::interprocess::interprocess_mutex mutex;
 
-    //Condition to wait when the frame was not updated
+    //! Condition to wait on when the frame was not updated
     boost::interprocess::interprocess_condition  condNew;
 };
 
