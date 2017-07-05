@@ -22,6 +22,7 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     tUnmap(0),
     tProcess(0),
     framesCount(0),
+    lastTimeDisplay(0),
     linLogLim(lin_log_lim)
 {
     for (int i=0; i<pboCount; ++i)
@@ -157,7 +158,7 @@ void pixelBuffer::process(double currentTime_)
                     for (int ii=0; ii<sizePic; ++ii)
                     {
                         // currently not rounding correctly, just to get visualization through ROS
-                        dataShrd->imageRef[ii] =  linlog(0.33*(gpuPtr[4*ii] + gpuPtr[4*ii+1] + gpuPtr[4*ii+2]));
+                        dataShrd->imageRef[ii] =  linlog(1.0/3.0*(gpuPtr[4*ii] + gpuPtr[4*ii+1] + gpuPtr[4*ii+2]));
                     }
                     dataShrd->timeRef = simTime[pboIndex];
                 }
@@ -190,9 +191,10 @@ void pixelBuffer::process(double currentTime_)
     ++framesCount;
 
     // output of runtimes for different sections
-    if (framesCount == 60 ) //((tRead+tMap+tUnmap+tProcess) >= 2000)
+    if (currentTime_-lastTimeDisplay > 2.0) //(framesCount == 60 ) //((tRead+tMap+tUnmap+tProcess) >= 2000)
     {
 
+        lastTimeDisplay = currentTime_;
         std::cout << " Average times: \n read - \t" << tRead/framesCount
                   << "ms, \n map it - \t"           << tMap/framesCount
                   << "ms, \n mutexed  - \t"          << tUnmap/framesCount

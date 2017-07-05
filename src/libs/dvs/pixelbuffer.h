@@ -79,6 +79,7 @@ private:
     unsigned framesCount;
     shared_mem_emul *dataShrd;
     double simTime [pboCount];
+    double lastTimeDisplay;
     double linLogLim;
 
 public:
