@@ -27,6 +27,13 @@
 #include "config_dvs.h"
 
 
+//****************************************************************
+///! Structs
+//****************************************************************
+
+//! struct that is kept in shared memory
+//! ATTENTION: changes here need to be performed in TORCS main.cpp
+//! as well, where frames are saved to shared memory
 struct shared_mem_emul
 {
     shared_mem_emul() :
@@ -38,72 +45,121 @@ struct shared_mem_emul
         mutex()
     {
     }
+    //! time stamp of newly acquired frame
     double timeNew;
+    //! time stamp of last frame
     double timeRef;
+    //! RGBA values of newly acquired frame
     unsigned char imageNew[image_width*image_height*4];
+    //! log(luminance) value of reference frame (last event generated)
     double imageRef[image_width*image_height];
 
-    //boolean updated when new frame was written
+    //! true when new frame was written
     bool frameUpdated;
 
-    //Mutex to protect access to the queue
+    //! Mutex to protect access to the queue
     boost::interprocess::interprocess_mutex mutex;
 
-    //Condition to wait when the frame was not updated
+    //! Condition to wait on when the frame was not updated
     boost::interprocess::interprocess_condition  condNew;
 };
 
 
+//****************************************************************
+///! Class
+//****************************************************************
+//!
+//! \brief The pixelBuffer class manages access to the gpu framebuffer
+//!
+//! the pbo is a openGL construct that asynchronously accesses
+//! the gpu framebuffer. The frames can then be transfered to
+//! regular RAM. This implementation directly transfers the obtained
+//! rendered frames to shared memory to provide access to a subsequent
+//! emulator.
 class pixelBuffer
 {
 private:
-//    dvsEmulator dvsE;
+    //****************************************************************
+    ///! GPU access specific variables
+    //****************************************************************
+    //! amount of pbos used in turn
     const static int pboCount = pbo_count;
+    //! index of currently used pbo
     unsigned pboIndex;
     unsigned screenWidth;
     unsigned screenHeight;
+    //! color channel size: RGBA: 4
     unsigned channelSize;
+    //! size of data per frame
     unsigned dataSize;
-    //unsigned dvsThresh;
-    bool twoFrames;
+    //! read count to keep track of glReadPixels calls before mapping
     unsigned readCount;
+    //! internal (openGL) pixel representation format
     GLenum pixFormat;
-    GLuint  pboIds[pboCount];    
-    unsigned char *imgA;
-    unsigned char *imgB;
+    //! handle for pbos
+    GLuint  pboIds[pboCount];
+
+    //****************************************************************
+    ///! Performance evaluation variables
+    //****************************************************************
+    //! timer object taking timing measurements
     Timer t1;
+    //! time for each part of the processing pipeline
     double tRead;
     double tMap;
     double tUnmap;
     double tProcess;
+    //! evaluated frames, to perform averaging for timings
     unsigned framesCount;
-    shared_mem_emul *dataShrd;
-    double simTime [pboCount];
+    //! time point to limit display of performance to certain frequency
     double lastTimeDisplay;
+
+    //****************************************************************
+    ///! Shared memory access variables
+    //****************************************************************
+    //! struct in shared memory that contains data and access control
+    shared_mem_emul *dataShrd;
+
+    //****************************************************************
+    ///! Emulation variables
+    //****************************************************************
+    //! boolean to make sure two frames have been mapped before
+    //! reference frame is generated
+    bool twoFrames;
+    //! limit to which value linear scale will be applied
+    //! out of range [0,255]
     double linLogLim;
+    //! array to save simulation time at time of glReadPixels for
+    //! asynchronous access to pass later on for timestamping events
+    double simTime [pboCount];
 
 public:
     pixelBuffer(unsigned screenWidth_, unsigned screenHeight_);
     ~pixelBuffer();
 
-    /**
-     * @brief resize adapts sizing of arrays used for pbo data transfer
-     * @param screenWidth_
-     * @param screenHeight_
-     * @return
-     */
+    //****************************************************************
+    ///! Class Methods
+    //****************************************************************
+    //! NOT IMPLEMENTED YET
+    //!
+    //! \brief resize adapts sizing of arrays used for pbo data transfer
+    //! \param screenWidth_ new screen width
+    //! \param screenHeight_ new screen height
+    //! \return 0
+    //!
     int resize(unsigned screenWidth_, unsigned screenHeight_);
 
-    /**
-     * @brief process computes luminosity difference between two consecutive frames
-     */
+    //!
+    //! \brief process computes luminosity difference between two consecutive frames
+    //! \param currentTime_ is the simulation time inherent to TORCS
+    //!
     void process(double currentTime_);
 
-    /**
-     * @brief linlog computes mix of linear and log response to avoid near zero problems of log
-     * @param arg
-     * @return
-     */
+    //!
+    //! \brief linlog computes mix of linear and log response to avoid near zero problems of log
+    //! \param arg argument, input luminosity value
+    //! \return mapped log(luminosity) value according to mix of linear and log mapping
+    //!
     inline double linlog(double arg)
     {
         if (arg>linLogLim)

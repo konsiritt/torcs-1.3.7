@@ -49,6 +49,10 @@
 
 #include "raceinit.h"
 
+//! pixel buffer object (PBO) that is used to asynchronously access
+//! the GPU framebuffer (performed in raceengine.cpp), in order to
+//! provide quick access to rendered images in order to provide them
+//! to the dvs emulator via shared memory access (declared in main.cpp)
 pixelBuffer * pboObject;
 
 static const char *level_str[] = { ROB_VAL_ROOKIE, ROB_VAL_AMATEUR, ROB_VAL_SEMI_PRO, ROB_VAL_PRO };
@@ -523,6 +527,12 @@ initPits(void)
 int
 ReInitCars(void)
 {
+
+    //! initialize pbo (Pixel Buffer Object) with the correct screen
+    //! size. PBO manages access to rendered frames in GPU
+    //! rest of implementation can be found in main.cpp,
+    //! libs/raceengineclient/raceengine.cpp and
+    //! libs/dvs/pixelbuffer.cpp
     if (pboObject == NULL)
     {
         int sw, sh, vw, vh;

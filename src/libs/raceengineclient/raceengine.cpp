@@ -53,8 +53,6 @@ static double	bigMsgDisp;
 
 tRmInfo	*ReInfo = 0;
 int RESTART = 0;
-unsigned char *img_old = NULL;
-int dvs_thresh = 35;
 
 static void ReRaceRules(tCarElt *car);
 
@@ -767,76 +765,7 @@ reCapture(void)
 	free(img);
 }
 
-//unsigned eventsCounter = 0;
-//double readTime = 0;
-//double processTime = 0;
-
-//static void
-//reEvents(void)
-//{
-//    int sw, sh, vw, vh;
-
-//    GfScrGetSize(&sw, &sh, &vw, &vh);
-
-//    unsigned char *img = new unsigned char [vw*vh];
-
-//    if (img == NULL) {
-//        return;
-//    }
-
-//    t1.start();
-
-//    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-//    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-//    glReadBuffer(GL_FRONT);
-//    glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, img);
-//    //            glReadPixels((sw-vw)/2, (sh-vh)/2, vw, vh, GL_LUMINANCE, GL_UNSIGNED_BYTE, (GLvoid*)img);
-
-//    t1.stop();
-//    readTime += t1.getElapsedTimeInMilliSec();
-////    std::cout << "Time in reEvents to read: " << t1.getElapsedTimeInMilliSec()<<std::endl;
-
-//    t1.start();
-//    //not on first frame, no image data is apparent
-//    if (img_old)
-//    {
-//        // obtain difference in luminosity:
-//        for (int ii=0; ii<vw*vh; ++ii)
-//        {
-//            if (abs(- img[ii] + img_old[ii])>dvs_thresh)
-//            {
-//                pdata[ii] = - img[ii] + img_old[ii];
-//            }
-//            else
-//                pdata[ii] = 0;
-
-//        }
-//        *pwritten=1;
-//        //                double t = GfTimeClock();
-//        //                if ((t - ReInfo->_reCurTime) > 30*RCM_MAX_DT_SIMU)
-//        //                    ReInfo->_reCurTime = t - RCM_MAX_DT_SIMU;
-//        delete [] img_old;
-//    }
-//    img_old = img;
-//    img = 0;
-//    t1.stop();
-//    processTime += t1.getElapsedTimeInMilliSec();
-//    //    std::cout << "Time in reEvents to process: " << t1.getElapsedTimeInMilliSec()<<std::endl;
-
-//    eventsCounter++;
-
-//    if (eventsCounter == 100)
-//    {
-//        std::cout << " Average times: \n read - \t" << readTime/eventsCounter
-//                  << "ms, \n process - \t"          << processTime/eventsCounter
-//                  << "ms, \n total - \t"            << (readTime+processTime)/eventsCounter
-//                  << std::endl;
-//        readTime = 0;
-//        processTime = 0;
-//        eventsCounter = 0;
-//    }
-//}
-
+//! pixel buffer object (PBO) constructed in
 extern pixelBuffer * pboObject;
 
 int
@@ -869,7 +798,9 @@ ReUpdate(void)
 			GfuiDisplay();
             ReInfo->_reGraphicItf.refresh(ReInfo->s);
 
-//            reEvents();
+            //! this calls an access to the gpu framebuffer in order to
+            //! save the current rendered frame to shared memory in order
+            //! to provide access to the current frame to the dvs emulator
             pboObject->process(ReInfo->s->currentTime);
 			glutPostRedisplay();	/* Callback -> reDisplay */            
 			break;

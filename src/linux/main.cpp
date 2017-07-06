@@ -215,6 +215,7 @@ struct shared_mem_emul
 
 namespace bip = boost::interprocess;
 
+//! pointer to shared memory struct that will be accessed later
 shared_mem_emul * dataShrdMain = NULL;
 
 /*

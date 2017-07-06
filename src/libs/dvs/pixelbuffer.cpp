@@ -6,15 +6,11 @@ namespace bip = boost::interprocess;
 extern shared_mem_emul * dataShrdMain;
 
 pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
-//    dvsE(screenWidth_,screenHeight_,
-//         channelSize_,dvsThreshold_), //2DO: pass channelSize according to pixelFormat
     pboIndex(0),
     screenWidth(screenWidth_),
     screenHeight(screenHeight_),
     channelSize(0),
     dataSize(0),
-    //dvsThresh(dvsThreshold_),
-    twoFrames(false),
     readCount(0),
     pixFormat(pixel_format),
     tRead(0),
@@ -23,6 +19,7 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     tProcess(0),
     framesCount(0),
     lastTimeDisplay(0),
+    twoFrames(false),
     linLogLim(lin_log_lim)
 {
     for (int i=0; i<pboCount; ++i)
@@ -44,10 +41,7 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     {
         channelSize = 4;
         dataSize = screenWidth * screenHeight * channelSize;
-    }
-
-    imgA = new unsigned char [dataSize];
-    imgB = new unsigned char [dataSize];    
+    } 
 
     // Generate pixel buffer objects
     glGenBuffers(pboCount, pboIds);
@@ -67,16 +61,6 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
 pixelBuffer::~pixelBuffer()
 {
     glDeleteBuffers(pboCount, pboIds);
-    if (NULL != imgA)
-    {
-        delete [] imgA;
-        imgA = NULL;
-    }
-    if (NULL != imgB)
-    {
-        delete [] imgB;
-        imgB = NULL;
-    }
 
     //Erase shared memory
     bip::shared_memory_object::remove("shared_memory");
