@@ -119,7 +119,14 @@ void pixelBuffer::process(double currentTime_)
         if (NULL != gpuPtr) {
 
             {
-                bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);                
+                bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
+#ifdef no_loss_frame_emulation
+                if (dataShrd->frameUpdated)
+                {
+                    // wait till notified by frame processing process
+                    dataShrd->condProcess.wait(lock);
+                }
+#endif //no_loss_frame_emulation
                 t1.stop();
                 tUnmap += t1.getElapsedTimeInMilliSec();
                 t1.start();

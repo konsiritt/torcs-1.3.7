@@ -25,13 +25,9 @@
 // GL_FLOAT [0,1] format from GPU instead of GL_UNSIGNED_BYTE [0,255]
 #define frames_float //TODO: NOT IMPLEMENTED
 
-//****************************************************************
-///! EMULATOR SETTINGS
-//****************************************************************
-
-// define to what value on linear rgb scale the log should be linear
-// only used for very first frame (saved directly to reference field)
-#define lin_log_lim 15
+// use condition for processing frames without loss of potential frames
+// not fit for real-time emulation
+#define no_loss_frame_emulation
 
 #endif // CONFIG_DVS_H
 
