@@ -191,6 +191,7 @@ struct shared_mem_emul
         imageNew(),
         imageRef(),
         frameUpdated(false),
+        frameIndex(0),
         mutex()
     {
     }
@@ -205,6 +206,8 @@ struct shared_mem_emul
 
     //! true when new frame was written
     bool frameUpdated;
+    //! frame index to keep track of loss of frames saved to memory
+    double frameIndex;
 
     //! Mutex to protect access to the queue
     boost::interprocess::interprocess_mutex mutex;

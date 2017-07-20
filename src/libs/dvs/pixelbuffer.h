@@ -42,6 +42,7 @@ struct shared_mem_emul
         imageNew(),
         imageRef(),
         frameUpdated(false),
+        frameIndex(0),
         mutex()
     {
     }
@@ -56,6 +57,8 @@ struct shared_mem_emul
 
     //! true when new frame was written
     bool frameUpdated;
+    //! frame index to keep track of loss of frames saved to memory
+    double frameIndex;
 
     //! Mutex to protect access to the queue
     boost::interprocess::interprocess_mutex mutex;
@@ -114,6 +117,9 @@ private:
     //! time point to limit display of performance to certain frequency
     double lastTimeDisplay;
 
+    //! total frames, since start of race
+    unsigned totalFrames;
+
     //****************************************************************
     ///! Shared memory access variables
     //****************************************************************
@@ -123,12 +129,6 @@ private:
     //****************************************************************
     ///! Emulation variables
     //****************************************************************
-    //! boolean to make sure two frames have been mapped before
-    //! reference frame is generated
-    bool twoFrames;
-    //! limit to which value linear scale will be applied
-    //! out of range [0,255]
-    double linLogLim;
     //! array to save simulation time at time of glReadPixels for
     //! asynchronous access to pass later on for timestamping events
     double simTime [pboCount];
@@ -154,23 +154,6 @@ public:
     //! \param currentTime_ is the simulation time inherent to TORCS
     //!
     void process(double currentTime_);
-
-    //!
-    //! \brief linlog computes mix of linear and log response to avoid near zero problems of log
-    //! \param arg argument, input luminosity value
-    //! \return mapped log(luminosity) value according to mix of linear and log mapping
-    //!
-    inline double linlog(double arg)
-    {
-        if (arg>linLogLim)
-        {
-            return log(arg);
-        }
-        else
-            return log(linLogLim)/linLogLim*arg;
-    }
-
-
 };
 
 #endif // PIXELBUFFER_H

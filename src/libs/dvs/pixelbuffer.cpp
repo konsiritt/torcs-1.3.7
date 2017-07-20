@@ -19,8 +19,7 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     tProcess(0),
     framesCount(0),
     lastTimeDisplay(0),
-    twoFrames(false),
-    linLogLim(lin_log_lim)
+    totalFrames(0)
 {
     for (int i=0; i<pboCount; ++i)
     {
@@ -77,6 +76,8 @@ void pixelBuffer::process(double currentTime_)
 {
     unsigned char* gpuPtr;
 
+    totalFrames++;
+
     // make sure all our pbos are bound to make use of asynchronous read of VRAM without blocking calls
     if (readCount < pboCount)
     {
@@ -123,29 +124,15 @@ void pixelBuffer::process(double currentTime_)
                 tUnmap += t1.getElapsedTimeInMilliSec();
                 t1.start();
 
-                // check if enough frames exist to perform first event emulation
-                if (twoFrames) {
-                    std::memcpy(dataShrd->imageNew, gpuPtr, dataSize);
-                    dataShrd->timeRef = dataShrd->timeNew;
-                    dataShrd->timeNew = simTime[pboIndex];
+                std::memcpy(dataShrd->imageNew, gpuPtr, dataSize);
+                dataShrd->timeRef = dataShrd->timeNew;
+                dataShrd->timeNew = simTime[pboIndex];
+                dataShrd->frameIndex++;
 
-                    // flag that frame data has been updated
-                    dataShrd->frameUpdated = true;
-                    // notify the emulating process of newly available data
-                    dataShrd->condNew.notify_one();
-                }
-                else
-                {
-                    twoFrames = true;
-
-                    int sizePic = screenWidth*screenHeight;
-                    for (int ii=0; ii<sizePic; ++ii)
-                    {
-                        // currently not rounding correctly, just to get visualization through ROS
-                        dataShrd->imageRef[ii] =  linlog(1.0/3.0*(gpuPtr[4*ii] + gpuPtr[4*ii+1] + gpuPtr[4*ii+2]));
-                    }
-                    dataShrd->timeRef = simTime[pboIndex];
-                }
+                // flag that frame data has been updated
+                dataShrd->frameUpdated = true;
+                // notify the emulating process of newly available data
+                dataShrd->condNew.notify_one();
             }
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         }
@@ -181,9 +168,10 @@ void pixelBuffer::process(double currentTime_)
         lastTimeDisplay = currentTime_;
         std::cout << " Average times: \n read - \t" << tRead/framesCount
                   << "ms, \n map it - \t"           << tMap/framesCount
-                  << "ms, \n mutexed  - \t"          << tUnmap/framesCount
-                  << "ms, \n copied - \t"          << tProcess/framesCount
+                  << "ms, \n mutexed  - \t"         << tUnmap/framesCount
+                  << "ms, \n copied - \t"           << tProcess/framesCount
                   << "ms, \n total - \t"            << (tRead+tMap+tUnmap+tProcess)/framesCount
+                  << "\n total frames: " << totalFrames
                   << std::endl;
         tRead = 0;
         tMap = 0;

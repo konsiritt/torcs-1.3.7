@@ -8,9 +8,12 @@
 ///  include/ros_dvs_emulator/config_dvs.h as well, where frames are accessed)
 //****************************************************************
 
+// define a display mode where every simulation time step a frame is rendered:
+#define RM_DISP_MODE_EVERY 5
+
 // game resolution used: TODO: save to shared memory
-#define image_width 320 //640 //
-#define image_height 240 //480 //
+#define image_width 640 //320 //
+#define image_height 480 //240 //
 // amount of pixel buffer objects (pbo) that asynchronously access the frames
 #define pbo_count 2
 

@@ -776,10 +776,33 @@ ReUpdate(void)
 	int mode = RM_ASYNC;
 	int i;
 	const int MAXSTEPS = 2000;
+
+    //TODO: do this at initialization somewhere
+    // this changes the display mode to display a frame at every simulation step
+    ReInfo->_displayMode = RM_DISP_MODE_EVERY;
 	
 	START_PROFILE("ReUpdate");
 	ReInfo->_refreshDisplay = 0;
 	switch (ReInfo->_displayMode) {
+        case RM_DISP_MODE_EVERY:
+            t = GfTimeClock();
+
+            START_PROFILE("ReOneStep*");
+            ReOneStep(RCM_MAX_DT_SIMU);
+            STOP_PROFILE("ReOneStep*");
+
+            GfuiDisplay();
+            ReInfo->_reGraphicItf.refresh(ReInfo->s);
+
+            //! this calls an access to the gpu framebuffer in order to
+            //! save the current rendered frame to shared memory in order
+            //! to provide access to the current frame to the dvs emulator
+            if (ReInfo->s->currentTime >= 0)
+            {
+                pboObject->process(ReInfo->s->currentTime);
+            }
+            glutPostRedisplay();	/* Callback -> reDisplay */
+            break;
 		case RM_DISP_MODE_NORMAL:
 			t = GfTimeClock();
 			
@@ -801,7 +824,10 @@ ReUpdate(void)
             //! this calls an access to the gpu framebuffer in order to
             //! save the current rendered frame to shared memory in order
             //! to provide access to the current frame to the dvs emulator
-            pboObject->process(ReInfo->s->currentTime);
+            if (ReInfo->s->currentTime >= 0)
+            {
+                pboObject->process(ReInfo->s->currentTime);
+            }
 			glutPostRedisplay();	/* Callback -> reDisplay */            
 			break;
 
