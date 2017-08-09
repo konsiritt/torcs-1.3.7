@@ -153,7 +153,7 @@ public:
 
     //!
     //! \brief process computes luminosity difference between two consecutive frames
-    //! \param currentTime_ is the simulation time inherent to TORCS
+    //! \param currentTime_ is the simulation time inherent to TORCS in sec
     //!
     void process(double currentTime_);
 };

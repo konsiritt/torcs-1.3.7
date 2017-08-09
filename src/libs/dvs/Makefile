@@ -20,9 +20,9 @@ SOLIBRARY    = libdvs.so
 
 SOLIBDIR     = .
 
-SOURCES      = pixelbuffer.cpp Timer.cpp
+SOURCES      = pixelbuffer.cpp Timer.cpp groundtruthlog.cpp
 
-EXPORTS      = pixelbuffer.h Timer.h config_dvs.h
+EXPORTS      = pixelbuffer.h Timer.h config_dvs.h groundtruthlog.h
 
 EXPDIR       = include/dvs
 

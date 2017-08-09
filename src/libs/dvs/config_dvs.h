@@ -27,7 +27,7 @@
 
 // use condition for processing frames without loss of potential frames
 // not fit for real-time emulation
-#define no_loss_frame_emulation
+//#define no_loss_frame_emulation
 
 #endif // CONFIG_DVS_H
 

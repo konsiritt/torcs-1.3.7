@@ -46,6 +46,7 @@
 #include "racegl.h"
 #include "raceresults.h"
 #include "dvs/pixelbuffer.h"
+#include "dvs/groundtruthlog.h"
 
 #include "raceinit.h"
 
@@ -54,6 +55,9 @@
 //! provide quick access to rendered images in order to provide them
 //! to the dvs emulator via shared memory access (declared in main.cpp)
 pixelBuffer * pboObject;
+
+//! object that takes care of logging ground truth racing info
+groundTruthLog * gtLog;
 
 static const char *level_str[] = { ROB_VAL_ROOKIE, ROB_VAL_AMATEUR, ROB_VAL_SEMI_PRO, ROB_VAL_PRO };
 
@@ -527,6 +531,27 @@ initPits(void)
 int
 ReInitCars(void)
 {
+	int nCars;
+	int index;
+	int i, j, k;
+	int robotIdx;
+	tModInfo *curModInfo;
+	tRobotItf *curRobot;
+	void *handle;
+	//char *category;
+	void *cathdle;
+	void *carhdle;
+	void *robhdle;
+	tCarElt *elt;
+	//char *str;
+	//int focusedIdx;
+	void *params = ReInfo->params;
+	const int BUFSIZE = 1024;
+	char buf[BUFSIZE], path[BUFSIZE];
+
+	/* Get the number of cars racing */
+	nCars = GfParmGetEltNb(params, RM_SECT_DRIVERS_RACING);
+	GfOut("loading %d cars\n", nCars);
 
     //! initialize pbo (Pixel Buffer Object) with the correct screen
     //! size. PBO manages access to rendered frames in GPU
@@ -549,30 +574,19 @@ ReInitCars(void)
         GfScrGetSize(&sw, &sh, &vw, &vh);
 
         pboObject = new pixelBuffer(vw,vh);
-
     }
-
-	int nCars;
-	int index;
-	int i, j, k;
-	int robotIdx;
-	tModInfo *curModInfo;
-	tRobotItf *curRobot;
-	void *handle;
-	//char *category;
-	void *cathdle;
-	void *carhdle;
-	void *robhdle;
-	tCarElt *elt;
-	//char *str;
-	//int focusedIdx;
-	void *params = ReInfo->params;
-	const int BUFSIZE = 1024;
-	char buf[BUFSIZE], path[BUFSIZE];
-
-	/* Get the number of cars racing */
-	nCars = GfParmGetEltNb(params, RM_SECT_DRIVERS_RACING);
-	GfOut("loading %d cars\n", nCars);
+    //! initialize ground truth logging
+    if (gtLog == NULL)
+    {
+        gtLog = new groundTruthLog(nCars);
+    }
+    else
+    {
+//        std::cout << "delete gtLog in ReInitCars" << std::endl;
+        delete gtLog;
+        gtLog = NULL;
+        gtLog = new groundTruthLog(nCars);
+    }
 
 	FREEZ(ReInfo->carList);
 	ReInfo->carList = (tCarElt*)calloc(nCars, sizeof(tCarElt));
@@ -870,6 +884,13 @@ ReRaceCleanDrivers(void)
     {
         delete pboObject;
         pboObject = NULL;
+    }
+
+    if (NULL != gtLog)
+    {
+//        std::cout << "delete gtLog in ReRaceCleanDrivers" << std::endl;
+        delete gtLog;
+        gtLog = NULL;
     }
 
 	int i;

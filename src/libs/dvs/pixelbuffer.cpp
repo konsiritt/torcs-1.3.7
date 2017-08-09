@@ -62,7 +62,7 @@ pixelBuffer::~pixelBuffer()
     glDeleteBuffers(pboCount, pboIds);
 
     //Erase shared memory
-    bip::shared_memory_object::remove("shared_memory");
+//    bip::shared_memory_object::remove("shared_memory");
 
     std::cout << "PBO-Object destroyed" << std::endl;
 }

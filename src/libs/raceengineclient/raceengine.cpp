@@ -40,8 +40,12 @@
 #include "raceresults.h"
 
 #include "dvs/pixelbuffer.h"
+#include "dvs/groundtruthlog.h"
 
 #include "raceengine.h"
+
+// log ground truth data
+#define log_gt true
 
 //#define image_width 640
 //#define image_height 480
@@ -765,8 +769,12 @@ reCapture(void)
 	free(img);
 }
 
-//! pixel buffer object (PBO) constructed in
+//! pixel buffer object (PBO) constructed in raceinit.cpp
 extern pixelBuffer * pboObject;
+//! ground truth logging object constructed in raceinit.cpp
+extern groundTruthLog * gtLog;
+
+double initLogged = false;
 
 int
 ReUpdate(void)
@@ -779,7 +787,7 @@ ReUpdate(void)
 
     //TODO: do this at initialization somewhere
     // this changes the display mode to display a frame at every simulation step
-    ReInfo->_displayMode = RM_DISP_MODE_EVERY;
+//    ReInfo->_displayMode = RM_DISP_MODE_EVERY;
 	
 	START_PROFILE("ReUpdate");
 	ReInfo->_refreshDisplay = 0;
@@ -800,6 +808,15 @@ ReUpdate(void)
             if (ReInfo->s->currentTime >= 0)
             {
                 pboObject->process(ReInfo->s->currentTime);
+                if (log_gt)
+                {
+                    gtLog->logContinuous(ReInfo->s);
+                }
+            }
+            if (!initLogged)
+            {
+                gtLog->logInitial(ReInfo->s);
+                initLogged = true;
             }
             glutPostRedisplay();	/* Callback -> reDisplay */
             break;
@@ -827,7 +844,17 @@ ReUpdate(void)
             if (ReInfo->s->currentTime >= 0)
             {
                 pboObject->process(ReInfo->s->currentTime);
+                if (log_gt)
+                {
+                    gtLog->logContinuous(ReInfo->s);
+                }
             }
+            if (!initLogged)
+            {
+                gtLog->logInitial(ReInfo->s);
+                initLogged = true;
+            }
+
 			glutPostRedisplay();	/* Callback -> reDisplay */            
 			break;
 
