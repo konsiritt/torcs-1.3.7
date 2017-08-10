@@ -38,6 +38,8 @@
 
 #include "grscreen.h"
 
+#include "dvs/groundtruthlog.h"
+
 cGrScreen::cGrScreen(int myid)
 {
 	id = myid;
@@ -194,6 +196,9 @@ void cGrScreen::switchMirror(void)
 }
 
 
+//! ground truth logging object constructed in raceinit.cpp
+extern groundTruthLog * gtLog;
+
 /* Select the camera by number */
 void cGrScreen::selectCamera(long cam)
 {
@@ -238,6 +243,8 @@ void cGrScreen::selectCamera(long cam)
 	drawCurrent = curCam->getDrawCurrent();
 	curCam->limitFov ();
 	GfParmWriteFile(NULL, grHandle, "Graph");
+
+    gtLog->logInitial(curCam->getFovY());
 }
 
 static class cGrPerspCamera *ThedispCam;	/* the display camera */

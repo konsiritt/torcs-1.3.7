@@ -39,6 +39,7 @@ public:
     int logContinuous(const tSituation * s);
     //! logs all relevant initial information
     int logInitial(const tSituation * s);
+    int logInitial(const float camFovY);
 
 
 private:

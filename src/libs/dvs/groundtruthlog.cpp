@@ -101,3 +101,18 @@ int groundTruthLog::logInitial(const tSituation * s)
 
     return 1;
 }
+
+int groundTruthLog::logInitial(const float camFovY)
+{
+    for (int i = 0; i < nCars; ++i)
+    {
+        if (i >= 2)
+        {
+            // currently only two cars logged
+            break;
+        }
+        logInit[i] << camFovY << " " << std::endl;
+    }
+
+    return 1;
+}
