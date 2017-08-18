@@ -12,8 +12,8 @@
 #define RM_DISP_MODE_EVERY 5
 
 // game resolution used: TODO: save to shared memory
-#define image_width 640 //320 //
-#define image_height 480 //240 //
+#define image_width 320 //640 //
+#define image_height 240 //480 //
 // amount of pixel buffer objects (pbo) that asynchronously access the frames
 #define pbo_count 2
 
@@ -28,6 +28,9 @@
 // use condition for processing frames without loss of potential frames
 // not fit for real-time emulation
 #define no_frame_loss_emulation
+
+// log ground truth data
+#define log_gt true
 
 #endif // CONFIG_DVS_H
 

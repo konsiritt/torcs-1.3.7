@@ -7,6 +7,7 @@
 #include <string>
 
 #include <raceman.h>
+#include "config_dvs.h"
 
 namespace patch
 {
@@ -38,11 +39,14 @@ public:
     //! logs all relevant information for the current race situation
     int logContinuous(const tSituation * s);
     //! logs all relevant initial information
-    int logInitial(const tSituation * s);
-    int logInitial(const float camFovY);
+    int logInitial(const tSituation * s, const float camFovY);
 
 
 private:
+    //! focal length in pixels, initialized to 0, and computed if fovY is logged
+    double focalPixel;
+    //! minimum required velocity to properly determine foe
+    double minVelFoe;
     //! amount of cars involved -> determines amount of logging files
     int nCars;
     //! output stream for continuous logging, one entry per car

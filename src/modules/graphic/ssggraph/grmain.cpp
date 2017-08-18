@@ -47,6 +47,8 @@
 
 #include <iostream>
 
+#include "dvs/groundtruthlog.h"
+
 int maxTextureUnits = 0;
 static double OldTime;
 static int nFrame;
@@ -306,6 +308,9 @@ initView(int x, int y, int width, int height, int /* flag */, void *screen)
 	return 0;
 }
 
+//! ground truth logging object constructed in raceinit.cpp
+extern groundTruthLog * gtLog;
+bool loggedGT = false;
 
 int
 refresh(tSituation *s)
@@ -343,6 +348,12 @@ refresh(tSituation *s)
     grUpdateSmoke(s->currentTime);
 
     STOP_PROFILE("refresh");
+
+    if (log_gt && !loggedGT )
+    {
+        gtLog->logInitial(s, grScreens[0]->getCurCamera()->getFovY());
+        loggedGT = true;
+    }
     return 0;
 }
 

@@ -44,9 +44,6 @@
 
 #include "raceengine.h"
 
-// log ground truth data
-#define log_gt true
-
 //#define image_width 640
 //#define image_height 480
 
@@ -774,7 +771,7 @@ extern pixelBuffer * pboObject;
 //! ground truth logging object constructed in raceinit.cpp
 extern groundTruthLog * gtLog;
 
-double initLogged = false;
+//double initLogged = false;
 
 int
 ReUpdate(void)
@@ -813,11 +810,7 @@ ReUpdate(void)
                     gtLog->logContinuous(ReInfo->s);
                 }
             }
-            if (!initLogged)
-            {
-                gtLog->logInitial(ReInfo->s);
-                initLogged = true;
-            }
+
             glutPostRedisplay();	/* Callback -> reDisplay */
             break;
 		case RM_DISP_MODE_NORMAL:
@@ -848,11 +841,6 @@ ReUpdate(void)
                 {
                     gtLog->logContinuous(ReInfo->s);
                 }
-            }
-            if (!initLogged)
-            {
-                gtLog->logInitial(ReInfo->s);
-                initLogged = true;
             }
 
 			glutPostRedisplay();	/* Callback -> reDisplay */            
