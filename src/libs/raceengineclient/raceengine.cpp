@@ -784,7 +784,7 @@ ReUpdate(void)
 
     //TODO: do this at initialization somewhere
     // this changes the display mode to display a frame at every simulation step
-//    ReInfo->_displayMode = RM_DISP_MODE_EVERY;
+    ReInfo->_displayMode = RM_DISP_MODE_EVERY;
 	
 	START_PROFILE("ReUpdate");
 	ReInfo->_refreshDisplay = 0;
