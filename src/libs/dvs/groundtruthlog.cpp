@@ -34,7 +34,7 @@ groundTruthLog::groundTruthLog(int nCars_):
         logCont[i] << "# 1:time[s] | 2:DynGCg.pos.x [m] | 3:pos.y | 4:pos.z | 5:pos.ax [rad?] | 6:pos.ay | 7:pos.az |" <<
                    " 8:DynGCg.vel.x [m/s] | 9:vel.y | 10:vel.z | 11:vel.ax [rad/s?] | 12:vel.ay | 13:vel.az |" <<
                    " 14:DynGCg.acc.x [m/s^2] | 15:acc.y | 16:acc.z | 17:acc.ax [rad/s^2?] | 18:acc.ay | 19:acc.az |" <<
-                   " 20:DynGC.vel.x [m] | 21:vel.y | 22:vel.z | 23:foeX | 24:foeY "<< std::endl;
+                   " 20:DynGC.vel.x [m] | 21:vel.y | 22:vel.z | 23:foeX | 24:foeY | 25:DynGC.vel.az"<< std::endl;
 
         if( !logInit[i].is_open() )
         {
@@ -106,7 +106,7 @@ int groundTruthLog::logContinuous(const tSituation * s)
                    << pos.x << " " << pos.y << " " << pos.z << " " << pos.ax << " " << pos.ay << " " << pos.az << " "
                    << vel.x << " " << vel.y << " " << vel.z << " " << vel.ax << " " << vel.ay << " " << vel.az << " "
                    << acc.x << " " << acc.y << " " << acc.z << " " << acc.ax << " " << acc.ay << " " << acc.az << " "
-                   << velCar.x << " " << velCar.y << " " << velCar.z << " " << foeX << " " << foeY << std::endl;
+                   << velCar.x << " " << velCar.y << " " << velCar.z << " " << foeX << " " << foeY << " " << velCar.az << std::endl;
     }
 
     return 1;
