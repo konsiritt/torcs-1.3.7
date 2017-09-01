@@ -331,6 +331,8 @@ hardSetCarToPosition(tCar *car)
 }
 #endif //obstacle_location
 
+bool initializedHard = false;
+
 void
 SimUpdate(tSituation *s, double deltaTime, int telemetry)
 {
@@ -405,9 +407,10 @@ SimUpdate(tSituation *s, double deltaTime, int telemetry)
 			SimWheelUpdateRotation(car);
 			CHECK(car);
 #ifdef obstacle_location
-            if (ncar==0 && obstacle_location)
+            if (!initializedHard && ncar==0 && obstacle_location)
             {
                 hardSetCarToPosition(car);
+                initializedHard = true;
             }
 #endif //obstacle_location
 			SimCarUpdate(car, s);

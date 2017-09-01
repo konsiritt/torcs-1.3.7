@@ -33,8 +33,8 @@
 #define log_gt true
 
 // define obstacle location: i.e. location of car
-#define obstacle_location false
-#undef obstacle_location
+#define obstacle_location true
+//#undef obstacle_location
 
 #endif // CONFIG_DVS_H
 
