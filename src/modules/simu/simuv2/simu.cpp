@@ -31,6 +31,8 @@
 #include <robottools.h>
 #include "sim.h"
 
+#include "dvs/config_dvs.h"
+
 tCar *SimCarTable = 0;
 tdble SimDeltaTime;
 int SimTelemetry;
@@ -313,7 +315,21 @@ RemoveCar(tCar *car, tSituation *s)
 	car->restPos.vel.ay = dang / travelTime;
 }
 
-
+#ifdef obstacle_location
+void
+hardSetCarToPosition(tCar *car)
+{
+    car->DynGCg.pos.x = 972.691;
+    car->DynGCg.pos.y = 639.862;
+    car->DynGCg.pos.z = 5.91818;
+    car->DynGC.pos.ax = -0.00193539;
+    car->DynGC.pos.ay = 0.00766178;
+    car->DynGC.pos.az = -2.15052;
+    car->DynGCg.vel.x = 0;
+    car->DynGCg.vel.y = 0;
+    car->DynGCg.vel.z = 0;
+}
+#endif //obstacle_location
 
 void
 SimUpdate(tSituation *s, double deltaTime, int telemetry)
@@ -388,6 +404,12 @@ SimUpdate(tSituation *s, double deltaTime, int telemetry)
 			CHECK(car);
 			SimWheelUpdateRotation(car);
 			CHECK(car);
+#ifdef obstacle_location
+            if (ncar==0 && obstacle_location)
+            {
+                hardSetCarToPosition(car);
+            }
+#endif //obstacle_location
 			SimCarUpdate(car, s);
 			CHECK(car);
 		} else {
@@ -434,7 +456,6 @@ SimUpdate(tSituation *s, double deltaTime, int telemetry)
 		carElt->_fakeDammage = car->fakeDammage;		
 	}
 }
-
 
 void
 SimInit(int nbcars, tTrack* track, tdble fuelFactor, tdble damageFactor)
