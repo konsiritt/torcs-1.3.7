@@ -347,13 +347,15 @@ void cGrScreen::update(tSituation *s, float Fps)
 	//light = ssgGetLight (0);
 	
 	/* MIRROR */
-	if (mirrorFlag && curCam->isMirrorAllowed ()) {
+    /*
+    if (mirrorFlag && curCam->isMirrorAllowed ()) {
 		mirrorCam->activateViewport ();
 		dispCam = mirrorCam;
 		glClear (GL_DEPTH_BUFFER_BIT);
 		camDraw (s);
 		mirrorCam->store ();
-	}
+    }
+    */
 	
 	glViewport(scrx, scry, scrw, scrh);
 	dispCam = curCam;
@@ -369,10 +371,12 @@ void cGrScreen::update(tSituation *s, float Fps)
 	glEnable(GL_TEXTURE_2D);
 	
 	/* MIRROR */
+    /*
 	if (mirrorFlag && curCam->isMirrorAllowed ()) {
 		mirrorCam->display ();
 		glViewport (scrx, scry, scrw, scrh);
 	}
+    */
 	
 	START_PROFILE("boardCam*");
 	boardCam->action();
@@ -382,8 +386,8 @@ void cGrScreen::update(tSituation *s, float Fps)
 	glDisable(GL_TEXTURE_2D);
 	
 	TRACE_GL("cGrScreen::update glDisable(GL_DEPTH_TEST)");
-	board->refreshBoard(s, Fps, 0, curCar);
-	TRACE_GL("cGrScreen::update display boards");
+    //board->refreshBoard(s, Fps, 0, curCar);
+    //TRACE_GL("cGrScreen::update display boards");
 	
 	STOP_PROFILE("grDisp**");
 }
