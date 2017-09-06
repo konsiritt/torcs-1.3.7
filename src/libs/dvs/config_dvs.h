@@ -27,7 +27,7 @@
 
 // use condition for processing frames without loss of potential frames
 // not fit for real-time emulation
-//#define no_frame_loss_emulation
+#define no_frame_loss_emulation
 
 // log ground truth data
 #define log_gt true
