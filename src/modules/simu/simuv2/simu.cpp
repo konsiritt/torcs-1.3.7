@@ -317,14 +317,28 @@ RemoveCar(tCar *car, tSituation *s)
 
 #ifdef obstacle_location
 void
-hardSetCarToPosition(tCar *car)
+hardSetCarToPositionObstacle(tCar *car)
 {
-    car->DynGCg.pos.x = 972.691;
-    car->DynGCg.pos.y = 639.862;
-    car->DynGCg.pos.z = 5.91818;
-    car->DynGC.pos.ax = -0.00193539;
-    car->DynGC.pos.ay = 0.00766178;
-    car->DynGC.pos.az = -2.15052;
+    car->DynGCg.pos.x = 978.777;//972.691;
+    car->DynGCg.pos.y = 639.53;//639.862;
+    car->DynGCg.pos.z = 5.94648;//5.91818;
+    car->DynGCg.pos.ax = 0.00310366;//-0.00193539;
+    car->DynGCg.pos.ay = -1.99338e-05;//0.00766178;
+    car->DynGCg.pos.az = 1.02976;//-1.915052; //-2.15052;
+    car->DynGCg.vel.x = 0;
+    car->DynGCg.vel.y = 0;
+    car->DynGCg.vel.z = 0;
+}
+
+void
+hardSetCarToPositionDriver(tCar *car)
+{
+    car->DynGCg.pos.x = 874.786;
+    car->DynGCg.pos.y = 692.176;
+    car->DynGCg.pos.z = 6.44905;
+    car->DynGCg.pos.ax = 1.98096e-05;
+    car->DynGCg.pos.ay = 2.24242e-05;
+    car->DynGCg.pos.az = -0.438187;
     car->DynGCg.vel.x = 0;
     car->DynGCg.vel.y = 0;
     car->DynGCg.vel.z = 0;
@@ -409,9 +423,16 @@ SimUpdate(tSituation *s, double deltaTime, int telemetry)
 #ifdef obstacle_location
             if (!initializedHard && ncar==0 && obstacle_location)
             {
-                hardSetCarToPosition(car);
-                initializedHard = true;
+                hardSetCarToPositionObstacle(car);
+                if (s->_ncars==1) {
+                    initializedHard = true;
+                }
             }
+            //else if (!initializedHard && ncar==1 && obstacle_location)
+            //{
+            //    hardSetCarToPositionDriver(car);
+            //    initializedHard = true;
+            //}
 #endif //obstacle_location
 			SimCarUpdate(car, s);
 			CHECK(car);
