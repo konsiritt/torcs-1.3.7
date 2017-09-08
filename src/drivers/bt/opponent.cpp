@@ -22,7 +22,7 @@
 
 // class variables and constants.
 tTrack* Opponent::track;
-const float Opponent::FRONTCOLLDIST = 200.0f;			// [m] distance on the track to check other cars.
+const float Opponent::FRONTCOLLDIST = 2.0f;			// [m] distance on the track to check other cars.
 const float Opponent::BACKCOLLDIST = 70.0f;				// [m] distance on the track to check other cars.
 const float Opponent::LENGTH_MARGIN = 3.0f;				// [m] savety margin.
 const float Opponent::SIDE_MARGIN = 1.0f;				// [m] savety margin.
