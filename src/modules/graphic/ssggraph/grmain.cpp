@@ -351,7 +351,9 @@ refresh(tSituation *s)
 
     if (log_gt && !loggedGT )
     {
+        grScreens[0]->getCurCamera()->setZoom(GR_ZOOM_MIN);
         gtLog->logInitial(s, grScreens[0]->getCurCamera()->getFovY());
+
         loggedGT = true;
     }
     return 0;
