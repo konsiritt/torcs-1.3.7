@@ -27,11 +27,11 @@
 #define isnan _isnan
 #endif
 
+#include "dvs/config_dvs.h"
+
 #include <tgf.h>
 #include <robottools.h>
 #include "sim.h"
-
-#include "dvs/config_dvs.h"
 
 tCar *SimCarTable = 0;
 tdble SimDeltaTime;
@@ -333,12 +333,12 @@ hardSetCarToPositionObstacle(tCar *car)
 void
 hardSetCarToPositionDriver(tCar *car)
 {
-    car->DynGCg.pos.x = 874.786;
-    car->DynGCg.pos.y = 692.176;
-    car->DynGCg.pos.z = 6.44905;
-    car->DynGCg.pos.ax = 1.98096e-05;
-    car->DynGCg.pos.ay = 2.24242e-05;
-    car->DynGCg.pos.az = -0.438187;
+    car->DynGCg.pos.x = 879.762;//874.786;
+    car->DynGCg.pos.y = 693.282;//692.176;
+    car->DynGCg.pos.z = 6.4388;//6.44905;
+    car->DynGCg.pos.ax = -0.000193663;//1.98096e-05;
+    car->DynGCg.pos.ay = -6.57397e-05;//2.24242e-05;
+    car->DynGCg.pos.az = -0.52543;//-0.5543;//-0.438187;
     car->DynGCg.vel.x = 0;
     car->DynGCg.vel.y = 0;
     car->DynGCg.vel.z = 0;

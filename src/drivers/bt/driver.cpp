@@ -17,6 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "dvs/config_dvs.h"
+
 #include "driver.h"
 
 const float Driver::MAX_UNSTUCK_ANGLE = 15.0f/180.0f*PI;	// [radians] If the angle of the car on the track is smaller, we assume we are not stuck.
@@ -387,6 +389,9 @@ float Driver::getSteer()
 	targetAngle = atan2(target.y - car->_pos_Y, target.x - car->_pos_X);
 	targetAngle -= car->_yaw;
 	NORM_PI_PI(targetAngle);
+#ifdef no_steering
+    targetAngle = 0;
+#endif
 	return targetAngle / car->_steerLock;
 }
 

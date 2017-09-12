@@ -23,6 +23,8 @@
 
 #include "sim.h"
 
+#include "dvs/config_dvs.h"
+
 const tdble aMax = 1.04f; // 60 degrees DOF limit
 
 void
@@ -264,6 +266,14 @@ SimCarUpdateSpeed(tCar *car)
 	car->DynGC.vel.x = car->DynGCg.vel.x * Cosz + car->DynGCg.vel.y * Sinz;
 	car->DynGC.vel.y = -car->DynGCg.vel.x * Sinz + car->DynGCg.vel.y * Cosz;
 	car->DynGC.vel.z = car->DynGCg.vel.z;
+
+#ifdef limit_maxvel
+    if (car->DynGC.vel.x > limit_maxvel) {
+        car->DynGC.vel.x = limit_maxvel;
+        car->DynGCg.vel.x = car->DynGC.vel.x * Cosz - car->DynGC.vel.y * Sinz;
+        car->DynGCg.vel.y = car->DynGC.vel.x * Sinz + car->DynGC.vel.y * Cosz;
+    }
+#endif
 }
 
 void
