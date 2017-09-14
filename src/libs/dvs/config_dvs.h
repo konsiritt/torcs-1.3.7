@@ -33,7 +33,7 @@
 //#undef obstacle_location
 
 // define a maximum velocity, to allow operation at constant speeds -> implementation in simuv2/car.cpp
-#define limit_maxvel 20.0
+#define limit_maxvel 30.0
 //#undef limit_maxvel
 
 // define no steering condition: to provide pure translational flow -> implementation in drivers/bt/driver.cpp
