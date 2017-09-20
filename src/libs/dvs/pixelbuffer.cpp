@@ -1,3 +1,4 @@
+#include <tgfclient.h>
 
 #include "pixelbuffer.h"
 
@@ -19,7 +20,10 @@ pixelBuffer::pixelBuffer (unsigned screenWidth_, unsigned screenHeight_) :
     tProcess(0),
     framesCount(0),
     lastTimeDisplay(0),
-    totalFrames(0)
+    totalFrames(0),
+    outputDirAEDat("/home/rittk/Documents/torcsGT"),
+    savedFrames(0),
+    lastTimeScreenshot(-screenshot_interval)
 {
     for (int i=0; i<pboCount; ++i)
     {
@@ -118,6 +122,19 @@ void pixelBuffer::process(double currentTime_)
         // copy from VRAM to RAM
         if (NULL != gpuPtr) {
 
+            // save screenshot in certain intervals
+            if (save_screenshot && (currentTime_-lastTimeScreenshot > screenshot_interval))
+            {
+                lastTimeScreenshot = currentTime_;
+                const int BUFSIZE = 1024;
+                char buf[BUFSIZE];
+                //snprintf(buf, BUFSIZE, "%s/frames/frame-%07d.png", outputDirAEDat, savedFrames++);
+                snprintf(buf, BUFSIZE, "/home/rittk/Documents/torcsGT/frames/frame-%07d-time-%2.5f.png", savedFrames++,currentTime_);
+                int sw, sh, vw, vh;
+                GfScrGetSize(&sw, &sh, &vw, &vh);
+                GfImgWritePng(gpuPtr, buf, vw, vh);
+            }
+
             {
                 bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
 #ifdef no_frame_loss_emulation
@@ -134,7 +151,7 @@ void pixelBuffer::process(double currentTime_)
                 std::memcpy(dataShrd->imageNew, gpuPtr, dataSize);
                 dataShrd->timeRef = dataShrd->timeNew;
                 dataShrd->timeNew = simTime[pboIndex];
-                dataShrd->frameIndex++;
+                dataShrd->frameIndex++;                
 
                 // flag that frame data has been updated
                 dataShrd->frameUpdated = true;

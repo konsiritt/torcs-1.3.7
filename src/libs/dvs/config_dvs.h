@@ -23,7 +23,7 @@
 
 // use condition for processing frames without loss of potential frames
 // not fit for real-time emulation -> implemented in raceengineclient/raceengine.cpp
-#define no_frame_loss_emulation
+//#define no_frame_loss_emulation
 
 // log ground truth data -> implementations in ssgraph/grmain.cpp & raceengineclient/raceengine.cpp
 #define log_gt true
@@ -39,6 +39,11 @@
 // define no steering condition: to provide pure translational flow -> implementation in drivers/bt/driver.cpp
 #define no_steering
 #undef no_steering
+
+// save periodic screenshots to png file
+#define save_screenshot true
+// time interval at which screenshots are saved
+#define screenshot_interval 1.0
 
 
 #endif // CONFIG_DVS_H

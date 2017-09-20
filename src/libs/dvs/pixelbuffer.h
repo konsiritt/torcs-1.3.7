@@ -123,6 +123,16 @@ private:
     unsigned totalFrames;
 
     //****************************************************************
+    ///! Frame output variables
+    //****************************************************************
+    //! directory where frames are saved to
+    std::string outputDirAEDat;
+    //! counter for frames put out
+    int savedFrames;
+    //! time of last screenshot to keep track of interval for new screen
+    double lastTimeScreenshot;
+
+    //****************************************************************
     ///! Shared memory access variables
     //****************************************************************
     //! struct in shared memory that contains data and access control
