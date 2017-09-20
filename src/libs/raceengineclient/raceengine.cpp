@@ -44,9 +44,6 @@
 
 #include "raceengine.h"
 
-//#define image_width 640
-//#define image_height 480
-
 Timer t1;
 
 static double	msgDisp;
@@ -763,7 +760,7 @@ reCapture(void)
 
 	snprintf(buf, BUFSIZE, "%s/torcs-%4.4d-%8.8d.png", capture->outputBase, capture->currentCapture, capture->currentFrame++);
 	GfImgWritePng(img, buf, vw, vh);
-	free(img);
+    free(img);
 }
 
 //! pixel buffer object (PBO) constructed in raceinit.cpp
@@ -784,7 +781,7 @@ ReUpdate(void)
 
     //TODO: do this at initialization somewhere
     // this changes the display mode to display a frame at every simulation step
-    ReInfo->_displayMode = RM_DISP_MODE_EVERY;
+    //ReInfo->_displayMode = RM_DISP_MODE_EVERY;
 	
 	START_PROFILE("ReUpdate");
 	ReInfo->_refreshDisplay = 0;
