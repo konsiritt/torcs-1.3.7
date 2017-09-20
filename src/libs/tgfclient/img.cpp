@@ -236,7 +236,7 @@ GfImgWritePng(unsigned char *img, const char *filename, int width, int height)
 	}
 	
 	png_init_io(png_ptr, fp);
-	png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB,
+    png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
 			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 #if 0
     handle = GfParmReadFile(GFSCR_CONF_FILE, GFPARM_RMODE_STD | GFPARM_RMODE_CREAT);
@@ -246,11 +246,11 @@ GfImgWritePng(unsigned char *img, const char *filename, int width, int height)
 	screen_gamma = 2.0;
 #endif
 	png_set_gAMA(png_ptr, info_ptr, screen_gamma);
-	/* png_set_bgr(png_ptr);    TO INVERT THE COLORS !!!! */
+    png_set_bgr(png_ptr);  //  TO INVERT THE COLORS !!!! */
 	png_write_info(png_ptr, info_ptr);
 	png_write_flush(png_ptr);
 	
-	rowbytes = width * 3;
+    rowbytes = width * 4;
 	row_pointers = (png_bytep*)malloc(height * sizeof(png_bytep));
 	
 	if (row_pointers == NULL) {
