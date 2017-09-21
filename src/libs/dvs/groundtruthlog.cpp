@@ -82,8 +82,8 @@ int groundTruthLog::logContinuous(const tSituation * s)
         double foeX, foeY;
         if (focalPixel==0)
         {
-            foeX = image_width/2;
-            foeY = image_height/2;
+            foeX = width_out/2;
+            foeY = height_out/2;
         }
         else
         {
@@ -93,13 +93,13 @@ int groundTruthLog::logContinuous(const tSituation * s)
             // the output pixel coordinate system is with the origin in the lower left corner (to match jAER)
             if (sqrt(velCar.x*velCar.x + velCar.y*velCar.y + velCar.z*velCar.z) > minVelFoe)
             {
-                foeX = focalPixel * (-velCar.y)/velCar.x + image_width/2;
-                foeY = image_height - ( focalPixel * (-velCar.z)/velCar.x + image_height/2 );
+                foeX = focalPixel * (-velCar.y)/velCar.x + width_out/2;
+                foeY = height_out - ( focalPixel * (-velCar.z)/velCar.x + height_out/2 );
             }
             else
             {
-                foeX = image_width/2;
-                foeY = image_height/2;
+                foeX = width_out/2;
+                foeY = height_out/2;
             }
         }
         logCont[i] << s->currentTime << " "
@@ -124,7 +124,7 @@ int groundTruthLog::logInitial(const tSituation * s, const float camFovY)
             break;
         }
         tInitCar curCar = s->cars[i]->info;
-        focalPixel = image_height/2/tan(camFovY*M_PI/360);
+        focalPixel = height_out/2/tan(camFovY*M_PI/360);
         logInit[i] << s->currentTime << " "
                    << curCar.bonnetPos.x << " " << curCar.bonnetPos.y << " " << curCar.bonnetPos.z << " "
                    << curCar.statGC.x << " " << curCar.statGC.y << " " << curCar.statGC.z << " "

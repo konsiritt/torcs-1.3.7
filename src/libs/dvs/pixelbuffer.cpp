@@ -121,20 +121,6 @@ void pixelBuffer::process(double currentTime_)
 
         // copy from VRAM to RAM
         if (NULL != gpuPtr) {
-
-            // save screenshot in certain intervals
-            if (save_screenshot && (currentTime_-lastTimeScreenshot > screenshot_interval))
-            {
-                lastTimeScreenshot = currentTime_;
-                const int BUFSIZE = 1024;
-                char buf[BUFSIZE];
-                //snprintf(buf, BUFSIZE, "%s/frames/frame-%07d.png", outputDirAEDat, savedFrames++);
-                snprintf(buf, BUFSIZE, "/home/rittk/Documents/torcsGT/frames/frame-%07d-time-%2.5f.png", savedFrames++,currentTime_);
-                int sw, sh, vw, vh;
-                GfScrGetSize(&sw, &sh, &vw, &vh);
-                GfImgWritePng(gpuPtr, buf, vw, vh);
-            }
-
             {
                 bip::scoped_lock<bip::interprocess_mutex> lock(dataShrd->mutex);
 #ifdef no_frame_loss_emulation
@@ -152,6 +138,19 @@ void pixelBuffer::process(double currentTime_)
                 dataShrd->timeRef = dataShrd->timeNew;
                 dataShrd->timeNew = simTime[pboIndex];
                 dataShrd->frameIndex++;                
+
+                // save screenshot in certain intervals
+                if (save_screenshot && (currentTime_-lastTimeScreenshot > screenshot_interval))
+                {
+                    lastTimeScreenshot = currentTime_;
+                    const int BUFSIZE = 1024;
+                    char buf[BUFSIZE];
+                    //snprintf(buf, BUFSIZE, "%s/frames/frame-%07d.png", outputDirAEDat, savedFrames++);
+                    snprintf(buf, BUFSIZE, "/home/rittk/Documents/torcsGT/frames/frame-%07d-time-%2.5f.png", savedFrames++,currentTime_);
+                    int sw, sh, vw, vh;
+                    GfScrGetSize(&sw, &sh, &vw, &vh);
+                    GfImgWritePng(gpuPtr, buf, vw, vh);
+                }
 
                 // flag that frame data has been updated
                 dataShrd->frameUpdated = true;
