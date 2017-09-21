@@ -42,6 +42,8 @@
 #include "grutil.h"
 #include <tgfclient.h>
 
+#include "dvs/config_dvs.h"
+
 float
 cGrCamera::getDist2 (tCarElt *car)
 {
@@ -1376,7 +1378,7 @@ grCamCreateSceneCameraList(class cGrScreen *myscreen, tGrCamHead *cams, tdble fo
 				      0,	/* drawCurr */
 				      1,	/* drawBG  */
 				      67.5,	/* fovy */
-                      35.0, //50.0,	/* fovymin */
+                      min_fov_noCarInside, //50.0,	/* fovymin */
 				      95.0,	/* fovymax */
 				      0.3,	/* near */
 				      600.0 * fovFactor,	/* far */

@@ -349,7 +349,7 @@ refresh(tSituation *s)
 
     STOP_PROFILE("refresh");
 
-    if (log_gt && !loggedGT )
+    if (log_gt && !loggedGT && s->currentTime >= 0 )
     {
         grScreens[0]->getCurCamera()->setZoom(GR_ZOOM_MIN);
         gtLog->logInitial(s, grScreens[0]->getCurCamera()->getFovY());
