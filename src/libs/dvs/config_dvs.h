@@ -36,7 +36,7 @@
 //#undef obstacle_location
 
 // define a maximum velocity, to allow operation at constant speeds -> implementation in simuv2/car.cpp
-#define limit_maxvel 30.0
+#define limit_maxvel 20.0
 //#undef limit_maxvel
 
 // define no steering condition: to provide pure translational flow -> implementation in drivers/bt/driver.cpp
@@ -46,7 +46,7 @@
 // save periodic screenshots to png file
 #define save_screenshot true//false //
 // time interval at which screenshots are saved
-#define screenshot_interval 0.2
+#define screenshot_interval 0.04
 
 // set minimum zoom field of view (fov) (lower means more zoom, default 50)
 #define min_fov_noCarInside 35.0
