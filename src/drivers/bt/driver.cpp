@@ -185,7 +185,11 @@ void Driver::drive(tSituation *s)
 		car->_brakeCmd = 0.0f;	// No brakes.
 		car->_clutchCmd = 0.0f;	// Full clutch (gearbox connected with engine).
 	} else {
+#ifdef no_steering
+        car->_steerCmd = 0;
+#else
 		car->_steerCmd = filterSColl(getSteer());
+#endif
 		car->_gearCmd = getGear();
 		car->_brakeCmd = filterABS(filterBrakeSpeed(filterBColl(filterBPit(getBrake()))));
 		if (car->_brakeCmd == 0.0f) {
@@ -389,9 +393,6 @@ float Driver::getSteer()
 	targetAngle = atan2(target.y - car->_pos_Y, target.x - car->_pos_X);
 	targetAngle -= car->_yaw;
 	NORM_PI_PI(targetAngle);
-#ifdef no_steering
-    targetAngle = 0;
-#endif
 	return targetAngle / car->_steerLock;
 }
 
