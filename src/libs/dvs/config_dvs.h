@@ -36,11 +36,11 @@
 //#undef obstacle_location
 
 // define a maximum velocity, to allow operation at constant speeds -> implementation in simuv2/car.cpp
-#define limit_maxvel 10.0
+#define limit_maxvel 20.0
 #undef limit_maxvel
 
 // define smooth movement without rotational elements (pitch yaw etc)
-#define move_smooth 5.0
+#define move_smooth 10.0
 //#undef move_smooth
 
 // define no steering condition: to provide pure translational flow -> implementation in drivers/bt/driver.cpp
