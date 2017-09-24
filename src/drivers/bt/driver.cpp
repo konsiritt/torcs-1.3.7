@@ -185,7 +185,7 @@ void Driver::drive(tSituation *s)
 		car->_brakeCmd = 0.0f;	// No brakes.
 		car->_clutchCmd = 0.0f;	// Full clutch (gearbox connected with engine).
 	} else {
-#ifdef no_steering
+#ifdef steering_off
         car->_steerCmd = 0;
 #else
 		car->_steerCmd = filterSColl(getSteer());

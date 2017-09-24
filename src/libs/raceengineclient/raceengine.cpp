@@ -768,8 +768,6 @@ extern pixelBuffer * pboObject;
 //! ground truth logging object constructed in raceinit.cpp
 extern groundTruthLog * gtLog;
 
-//double initLogged = false;
-
 int
 ReUpdate(void)
 {
