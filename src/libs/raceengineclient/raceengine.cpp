@@ -797,7 +797,7 @@ ReUpdate(void)
             //! this calls an access to the gpu framebuffer in order to
             //! save the current rendered frame to shared memory in order
             //! to provide access to the current frame to the dvs emulator
-            if (ReInfo->s->currentTime >= 0)
+            if (ReInfo->s->currentTime > 0 + RCM_MAX_DT_SIMU)
             {
                 pboObject->process(ReInfo->s->currentTime);
                 if (log_gt)
@@ -829,7 +829,7 @@ ReUpdate(void)
             //! this calls an access to the gpu framebuffer in order to
             //! save the current rendered frame to shared memory in order
             //! to provide access to the current frame to the dvs emulator
-            if (ReInfo->s->currentTime >= 0)
+            if (ReInfo->s->currentTime > 0 + RCM_MAX_DT_SIMU)
             {
                 pboObject->process(ReInfo->s->currentTime);
                 if (log_gt)
