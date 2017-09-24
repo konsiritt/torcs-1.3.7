@@ -245,7 +245,7 @@ SimCarUpdateSpeed(tCar *car)
 		
 	Cosz = car->Cosz;
 	Sinz = car->Sinz;
-	
+
 	car->DynGCg.vel.x += car->DynGCg.acc.x * SimDeltaTime;
 	car->DynGCg.vel.y += car->DynGCg.acc.y * SimDeltaTime;
 	car->DynGCg.vel.z += car->DynGCg.acc.z * SimDeltaTime;
@@ -273,6 +273,19 @@ SimCarUpdateSpeed(tCar *car)
         car->DynGCg.vel.x = car->DynGC.vel.x * Cosz - car->DynGC.vel.y * Sinz;
         car->DynGCg.vel.y = car->DynGC.vel.x * Sinz + car->DynGC.vel.y * Cosz;
     }
+#endif
+#ifdef move_smooth
+    car->DynGC.vel.x = move_smooth;
+    car->DynGC.vel.y = 0;
+    car->DynGCg.vel.x = car->DynGC.vel.x * Cosz - car->DynGC.vel.y * Sinz;
+    car->DynGCg.vel.y = car->DynGC.vel.x * Sinz + car->DynGC.vel.y * Cosz;
+
+    car->DynGCg.vel.ax = 0;
+    car->DynGCg.vel.ay = 0;
+    car->DynGCg.vel.az = 0;
+    car->DynGC.vel.ax = car->DynGCg.vel.ax;
+    car->DynGC.vel.ay = car->DynGCg.vel.ay;
+    car->DynGC.vel.az = car->DynGCg.vel.az;
 #endif
 }
 

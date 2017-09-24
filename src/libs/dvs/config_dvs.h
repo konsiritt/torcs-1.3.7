@@ -12,8 +12,8 @@
 #define RM_DISP_MODE_EVERY 5
 
 // game resolution used: TODO: save to shared memory
-#define image_width 320 //640 //1280//
-#define image_height 240 //480 //960//
+#define image_width 640 //320 //1280//
+#define image_height 480 //240 //960//
 // for when supersampling is used, define downsampled size
 #define width_out 320//640//1280//
 #define height_out 240//480 //960//
@@ -36,12 +36,16 @@
 //#undef obstacle_location
 
 // define a maximum velocity, to allow operation at constant speeds -> implementation in simuv2/car.cpp
-#define limit_maxvel 20.0
-//#undef limit_maxvel
+#define limit_maxvel 10.0
+#undef limit_maxvel
+
+// define smooth movement without rotational elements (pitch yaw etc)
+#define move_smooth 5.0
+//#undef move_smooth
 
 // define no steering condition: to provide pure translational flow -> implementation in drivers/bt/driver.cpp
-#define no_steering
-//#undef no_steering
+#define steering_off
+#undef steering_off
 
 // save periodic screenshots to png file
 #define save_screenshot true//false //
