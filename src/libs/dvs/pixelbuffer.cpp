@@ -140,7 +140,7 @@ void pixelBuffer::process(double currentTime_)
                 dataShrd->frameIndex++;                
 
                 // save screenshot in certain intervals
-                if (save_screenshot && (currentTime_-lastTimeScreenshot > screenshot_interval))
+                if (save_screenshot && currentTime_>0 && (currentTime_-lastTimeScreenshot > screenshot_interval))
                 {
                     lastTimeScreenshot = currentTime_;
                     const int BUFSIZE = 1024;
