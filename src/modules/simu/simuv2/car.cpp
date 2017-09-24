@@ -280,12 +280,12 @@ SimCarUpdateSpeed(tCar *car)
     car->DynGCg.vel.x = car->DynGC.vel.x * Cosz - car->DynGC.vel.y * Sinz;
     car->DynGCg.vel.y = car->DynGC.vel.x * Sinz + car->DynGC.vel.y * Cosz;
 
-    car->DynGCg.vel.ax = 0;
-    car->DynGCg.vel.ay = 0;
-    car->DynGCg.vel.az = 0;
-    car->DynGC.vel.ax = car->DynGCg.vel.ax;
-    car->DynGC.vel.ay = car->DynGCg.vel.ay;
-    car->DynGC.vel.az = car->DynGCg.vel.az;
+//    car->DynGCg.vel.ax = 0;
+//    car->DynGCg.vel.ay = 0;
+//    car->DynGCg.vel.az = 0;
+//    car->DynGC.vel.ax = car->DynGCg.vel.ax;
+//    car->DynGC.vel.ay = car->DynGCg.vel.ay;
+//    car->DynGC.vel.az = car->DynGCg.vel.az; // ohne diese zeilen funktionierts zumindest fuer move_smooth 10
 #endif
 }
 
@@ -329,10 +329,12 @@ SimCarUpdatePos(tCar *car)
 	car->DynGCg.pos.x += vx * SimDeltaTime;
 	car->DynGCg.pos.y += vy * SimDeltaTime;
 	car->DynGCg.pos.z += car->DynGCg.vel.z * SimDeltaTime;
-	
+
+#ifndef move_smooth
 	car->DynGCg.pos.ax += car->DynGCg.vel.ax * SimDeltaTime;
 	car->DynGCg.pos.ay += car->DynGCg.vel.ay * SimDeltaTime;
-	car->DynGCg.pos.az += car->DynGCg.vel.az * SimDeltaTime;
+    car->DynGCg.pos.az += car->DynGCg.vel.az * SimDeltaTime;
+#endif
 		
 	NORM_PI_PI(car->DynGCg.pos.az);
 	
