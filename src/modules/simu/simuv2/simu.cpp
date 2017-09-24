@@ -428,7 +428,7 @@ SimUpdate(tSituation *s, double deltaTime, int telemetry)
                     initializedHard = true;
                 }
             }
-            else if ( ncar==1 && s->currentTime > 0 && !initializedHard && obstacle_location)
+            else if ( ncar==1 && s->currentTime > 0 && !initializedHard && obstacle_location) //
             {
                 hardSetCarToPositionDriver(car);
                 initializedHard = true;
