@@ -26,7 +26,7 @@
 
 // use condition for processing frames without loss of potential frames
 // not fit for real-time emulation -> implemented in raceengineclient/raceengine.cpp
-#define no_frame_loss_emulation
+//#define no_frame_loss_emulation
 
 // log ground truth data -> implementations in ssgraph/grmain.cpp & raceengineclient/raceengine.cpp
 #define log_gt true
@@ -34,6 +34,8 @@
 // define obstacle location: i.e. location of car -> implementation in simuv2/simu.cpp
 #define obstacle_location true
 //#undef obstacle_location
+// define tetcase scenario: 1: subaru testcase (no highrisers) 2: highrise testcase
+#define obstacle_type 2 // 1 //
 
 // define a maximum velocity, to allow operation at constant speeds -> implementation in simuv2/car.cpp
 #define limit_maxvel 20.0

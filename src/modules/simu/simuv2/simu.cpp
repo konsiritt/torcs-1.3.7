@@ -319,29 +319,60 @@ RemoveCar(tCar *car, tSituation *s)
 void
 hardSetCarToPositionObstacle(tCar *car)
 {
-    car->DynGCg.pos.x = 962.67;//977.141;//978.777;//972.691;
-    car->DynGCg.pos.y = 646.396;//636.828;//639.53;//639.862;
-    car->DynGCg.pos.z = 5.99513;//5.93639;//5.94648;//5.91818;
-    car->DynGCg.pos.ax = 0.00517698;//0.00288018;//0.00310366;//-0.00193539;
-    car->DynGCg.pos.ay = -0.000849816;//3.68284e-05;//-1.99338e-05;//0.00766178;
-    car->DynGCg.pos.az = 1.16316;//1.01421;//1.02976;//-1.915052; //-2.15052;
-    car->DynGCg.vel.x = 0;
-    car->DynGCg.vel.y = 0;
-    car->DynGCg.vel.z = 0;
+    if (obstacle_type == 1) //subaru
+    {
+        car->DynGCg.pos.x = 962.67;
+        car->DynGCg.pos.y = 646.396;
+        car->DynGCg.pos.z = 5.99513;
+        car->DynGCg.pos.ax = 0.00517698;
+        car->DynGCg.pos.ay = -0.000849816;
+        car->DynGCg.pos.az = 1.16316;
+        car->DynGCg.vel.x = 0;
+        car->DynGCg.vel.y = 0;
+        car->DynGCg.vel.z = 0;
+    }
+    else if (obstacle_type == 2 ) //highrise
+    {
+        car->DynGCg.pos.x = 1124.04;
+        car->DynGCg.pos.y = 744.861;
+        car->DynGCg.pos.z = 5.86255;
+        car->DynGCg.pos.ax = -0.00663564;
+        car->DynGCg.pos.ay = 0.00336097;
+        car->DynGCg.pos.az = 0.847438;
+        car->DynGCg.vel.x = 0;
+        car->DynGCg.vel.y = 0;
+        car->DynGCg.vel.z = 0;
+    }
 }
 
 void
 hardSetCarToPositionDriver(tCar *car)
 {
-    car->DynGCg.pos.x = 892.721;//879.762;//874.786;
-    car->DynGCg.pos.y = 691.235;//693.282;//692.176;
-    car->DynGCg.pos.z = 6.43921;//6.4388;//6.44905;
-    car->DynGCg.pos.ax = 1.43541e-06;//-0.000193663;//1.98096e-05;
-    car->DynGCg.pos.ay = -0.00056686;//-6.57397e-05;//2.24242e-05;
-    car->DynGCg.pos.az = -0.578255;//-0.52543;//-0.5543;//-0.438187;
-    car->DynGCg.vel.x = 0;
-    car->DynGCg.vel.y = 0;
-    car->DynGCg.vel.z = 0;
+    if (obstacle_type == 1) //subaru
+    {
+        car->DynGCg.pos.x = 892.721;
+        car->DynGCg.pos.y = 691.235;
+        car->DynGCg.pos.z = 6.43921;
+        car->DynGCg.pos.ax = 1.43541e-06;
+        car->DynGCg.pos.ay = -0.00056686;
+        car->DynGCg.pos.az = -0.578255;
+        car->DynGCg.vel.x = 0;
+        car->DynGCg.vel.y = 0;
+        car->DynGCg.vel.z = 0;
+    }
+    else if (obstacle_type == 2 ) //highrise
+    {
+        car->DynGCg.pos.x = 1361.86;
+        car->DynGCg.pos.y = 586.669;
+        car->DynGCg.pos.z = 7.04948;
+        car->DynGCg.pos.ax = -0.00609214;
+        car->DynGCg.pos.ay = 0.00961514;
+        car->DynGCg.pos.az = 2.555; //2.53923;
+        car->DynGCg.vel.x = 0;
+        car->DynGCg.vel.y = 0;
+        car->DynGCg.vel.z = 0;
+    }
+
 }
 #endif //obstacle_location
 
