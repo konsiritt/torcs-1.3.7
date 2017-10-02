@@ -26,7 +26,7 @@
 
 // use condition for processing frames without loss of potential frames
 // not fit for real-time emulation -> implemented in raceengineclient/raceengine.cpp
-//#define no_frame_loss_emulation
+#define no_frame_loss_emulation
 
 // log ground truth data -> implementations in ssgraph/grmain.cpp & raceengineclient/raceengine.cpp
 #define log_gt true
@@ -39,23 +39,23 @@
 
 // define a maximum velocity, to allow operation at constant speeds -> implementation in simuv2/car.cpp
 #define limit_maxvel 20.0
-#undef limit_maxvel
+//#undef limit_maxvel
 
 // define smooth movement without rotational elements (pitch yaw etc)
-#define move_smooth 10.0
+#define move_smooth 20.0
 //#undef move_smooth
 
 // define no steering condition: to provide pure translational flow -> implementation in drivers/bt/driver.cpp
 #define steering_off
 #undef steering_off
 
-// save periodic screenshots to png file
+// save periodic screenshots to png file in pixelbuffer.cpp
 #define save_screenshot true//false //
 // time interval at which screenshots are saved
 #define screenshot_interval 0.04
 
 // set minimum zoom field of view (fov) (lower means more zoom, default 50)
-#define min_fov_noCarInside 35.0
+#define min_fov_noCarInside 35
 
 
 #endif // CONFIG_DVS_H
