@@ -1,5 +1,5 @@
 # **TORCS 1.3.7** 
-Version of TORCS 1.3.7 with [SCR patch](https://github.com/barisdemirdelen/scr-torcs-1.3.7) and an additional patch to send the current game image to another application via shared memory.
+Version of TORCS 1.3.7 with [SCR patch](https://github.com/barisdemirdelen/scr-torcs-1.3.7) and an additional patch to send the current game image to another application via shared memory. Together with the DVS emulator ( https://github.com/konsiritt/my_ros_dvs_emulator.git ) synthetic DVS sensory data can be generated. The rendered frames are saved to shared memory and processed by the ROS node. The resolution of the synthetic sensory data has to be adapted according to the configuration of the ROS node in the file src/libs/dvs/config_dvs.h. The consistency of this setting is not yet ensured between these applications. Additionally the TORCS game settings need to be set accordingly. In order to operate in high temporal precision mode the compile flag #define no_frame_loss_emulation needs to be specified in both applications consistently. This ensures shared memory access is managed in a way, that no frame is skipped. 
 
 ## Installation
 
