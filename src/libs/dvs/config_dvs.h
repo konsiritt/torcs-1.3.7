@@ -33,17 +33,17 @@
 
 // define obstacle location: i.e. location of car -> implementation in simuv2/simu.cpp
 #define obstacle_location true
-//#undef obstacle_location
+#undef obstacle_location
 // define tetcase scenario: 1: subaru testcase (no highrisers) 2: highrise testcase
 #define obstacle_type 2 // 1 //
 
 // define a maximum velocity, to allow operation at constant speeds -> implementation in simuv2/car.cpp
 #define limit_maxvel 20.0
-//#undef limit_maxvel
+#undef limit_maxvel
 
 // define smooth movement without rotational elements (pitch yaw etc)
 #define move_smooth 20.0
-//#undef move_smooth
+#undef move_smooth
 
 // define no steering condition: to provide pure translational flow -> implementation in drivers/bt/driver.cpp
 #define steering_off
